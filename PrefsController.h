@@ -83,7 +83,7 @@
 - (BOOL)showJigglerIconWhenJiggling;
 - (BOOL)jiggleOnlyWhenIdle;
 
-- (int)jiggleStyle;							// 0 == standard, 1 == "Zen", 2 == "click jiggle"
+- (int)jiggleStyle;							// 0 == standard, 1 == "Zen", 2 == "click jiggle", 3 == keystroke jiggle (hidden; issue #28)
 - (int)jiggleDistance;
 
 - (BOOL)onlyWithCPUUsage;

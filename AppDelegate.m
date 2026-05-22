@@ -777,12 +777,56 @@ extern OSErr UpdateSystemActivity(UInt8 activity) __attribute__((weak_import));
                         }
                     }
 				}
+				else if (jiggleStyle == 3)
+				{
+					// Keystroke jiggle (issue #28): post a no-op keystroke instead of moving
+					// or clicking the mouse.  Useful for remote-desktop sessions, where mouse
+					// activity on the local machine does not register at the remote side, and
+					// for users who don't want click-jiggle's "click wherever the cursor is"
+					// behaviour.  Hidden feature, no UI yet; enable with:
+					//
+					//   defaults write com.stick.app.jiggler JiggleStyle -int 3
+					//
+					// Default key is F2 (key code 120), chosen because virtually nothing reacts
+					// to it.  Override with:
+					//
+					//   defaults write com.stick.app.jiggler JiggleKeystrokeKeyCode -int <code>
+					NSInteger keyCode = [[NSUserDefaults standardUserDefaults] integerForKey:@"JiggleKeystrokeKeyCode"];
+					if (keyCode <= 0) keyCode = 120;	// F2
+
+					CGEventSourceRef sourceRef = CGEventSourceCreate(kCGEventSourceStateHIDSystemState);
+					if (sourceRef)
+					{
+						CGEventRef keyDown = CGEventCreateKeyboardEvent(sourceRef, (CGKeyCode)keyCode, true);
+						CGEventRef keyUp   = CGEventCreateKeyboardEvent(sourceRef, (CGKeyCode)keyCode, false);
+
+						if (keyDown && keyUp)
+						{
+							CGEventPost(kCGHIDEventTap, keyDown);
+							usleep(10000);
+							CGEventPost(kCGHIDEventTap, keyUp);
+						}
+						else
+						{
+							static bool beenHere = false;
+							if (!beenHere)
+							{
+								NSLog(@"Jiggler was unable to create keystroke events.");
+								beenHere = true;
+							}
+						}
+
+						if (keyDown) CFRelease(keyDown);
+						if (keyUp)   CFRelease(keyUp);
+						CFRelease(sourceRef);
+					}
+				}
 				else	// jiggleStyle == 0, and bad values
 				{
 					// Standard jiggle: move the mouse a bunch of times
 					// Remember the current mouse point, so we can avoid hitting it exactly
 					[self _setJiggleAvoidPoint];
-					
+
 					// Schedule a bunch of mouse-moves
 					for (i = 0; i < 35; ++i)
 						[self performSelector:@selector(_jiggleMouse:) withObject:nil afterDelay:(double)i / 100.0 inModes:@[NSDefaultRunLoopMode, NSModalPanelRunLoopMode, NSEventTrackingRunLoopMode]];

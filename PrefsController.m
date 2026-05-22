@@ -20,7 +20,7 @@ static NSString *ShowIconWhenJigglingDefaultsKey = @"ShowIconWhenJiggling";
 static NSString *JiggleOnlyWhenIdleDefaultsKey = @"JiggleOnlyWhenIdle";
 
 static NSString *ZenJiggleDefaultsKey = @"ZenJiggle";							// version 1.7 and before, superseded by JiggleStyleDefaultsKey
-static NSString *JiggleStyleDefaultsKey = @"JiggleStyle";						// version 1.8 and later: 0 is standard, 1 is Zen jiggle, 2 is click jiggle
+static NSString *JiggleStyleDefaultsKey = @"JiggleStyle";						// 0 is standard, 1 is Zen jiggle, 2 is click jiggle, 3 is keystroke jiggle (hidden; issue #28)
 static NSString *JiggleDistanceDefaultsKey = @"JiggleDistance";
 
 static NSString *OnlyWithCPUUsageDefaultsKey = @"OnlyWithCPUUsage";
@@ -114,7 +114,7 @@ static NSString *FrontAppNameComponentDefaultsKey = @"FrontAppNameComponent";
 		jiggleStyle = (int)[userDefaults integerForKey:JiggleStyleDefaultsKey];
 		if (jiggleStyle == -1)
 			jiggleStyle = ([userDefaults boolForKey:ZenJiggleDefaultsKey] ? 1 : 0);
-		if ((jiggleStyle < 0) || (jiggleStyle > 2)) jiggleStyle = 0;
+		if ((jiggleStyle < 0) || (jiggleStyle > 3)) jiggleStyle = 0;
 
 		jiggleDistance = [userDefaults floatForKey:JiggleDistanceDefaultsKey];
 		if (jiggleDistance < 0.0f)
