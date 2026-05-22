@@ -10,6 +10,8 @@
 #import "CocoaExtra.h"
 #import "AppDelegate.h"
 
+#import <ServiceManagement/ServiceManagement.h>		// SMAppService on 13.0+; LSSharedFileList* (CoreServices) is auto-imported via Cocoa
+
 
 // User defaults keys
 static NSString *JiggleTimeDefaultsKey = @"JiggleTime";							// version 1.3 and before: -1 = 20 secs, 0 = 40 secs, >=1 is number of minutes
@@ -556,83 +558,106 @@ static NSString *FrontAppNameComponentDefaultsKey = @"FrontAppNameComponent";
 	}
 }
 
-#pragma Launch on Login
+#pragma mark - Launch on Login
 
-// This code courtesy of Catalin Stan at http://stackoverflow.com/questions/23625255/how-can-i-make-program-automatically-startup-on-login
-// Note that it would not work with sandboxing, and would likely have problems on the Mac App Store.
+// On macOS 13+ this is the supported API and the only one that works with sandboxed apps
+// or apps distributed via the Mac App Store.  On 10.15-12.x we fall back to the deprecated
+// LSSharedFileList* API (the legacy path was contributed by Catalin Stan, see
+// http://stackoverflow.com/questions/23625255/).
 
-- (BOOL)launchOnLogin 
+- (BOOL)launchOnLogin
 {
-	BOOL loginItemFound = FALSE;
+	if (@available(macOS 13.0, *))
+		return [SMAppService mainAppService].status == SMAppServiceStatusEnabled;
+
+	return [self legacyLaunchOnLogin];
+}
+
+- (void)setLaunchOnLogin:(BOOL)launchOnLogin
+{
+	if (@available(macOS 13.0, *))
+	{
+		SMAppService *service = [SMAppService mainAppService];
+		NSError *error = nil;
+
+		if (launchOnLogin)
+			[service registerAndReturnError:&error];
+		else
+			[service unregisterAndReturnError:&error];
+
+		if (error)
+			NSLog(@"[Jiggler] SMAppService %@ failed: %@", launchOnLogin ? @"register" : @"unregister", error.localizedDescription);
+		return;
+	}
+
+	[self legacySetLaunchOnLogin:launchOnLogin];
+}
+
+#pragma mark - Legacy Launch on Login (macOS 10.15-12.x)
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
+
+- (BOOL)legacyLaunchOnLogin
+{
+	BOOL loginItemFound = NO;
 	LSSharedFileListRef loginItemsListRef = LSSharedFileListCreate(NULL, kLSSharedFileListSessionLoginItems, NULL);
-	
+
 	if (loginItemsListRef)
 	{
-		CFArrayRef snapshotRef = LSSharedFileListCopySnapshot(loginItemsListRef, NULL);
-		NSArray *loginItems = (NSArray *)CFBridgingRelease(snapshotRef);
+		NSArray *loginItems = (NSArray *)CFBridgingRelease(LSSharedFileListCopySnapshot(loginItemsListRef, NULL));
 		NSURL *bundleURL = [NSURL fileURLWithPath:[[NSBundle mainBundle] bundlePath]];
 
 		for (id item in loginItems)
 		{
 			LSSharedFileListItemRef itemRef = (__bridge LSSharedFileListItemRef)item;
-			CFURLRef itemURLRef = LSSharedFileListItemCopyResolvedURL(itemRef, 0, NULL);
-			NSURL *itemURL = (NSURL *)CFBridgingRelease(itemURLRef);
-			
+			NSURL *itemURL = (NSURL *)CFBridgingRelease(LSSharedFileListItemCopyResolvedURL(itemRef, 0, NULL));
+
 			if ([itemURL isEqual:bundleURL])
 			{
 				loginItemFound = YES;
 				break;
 			}
 		}
-		
+
 		CFRelease(loginItemsListRef);
 	}
 
-#pragma clang diagnostic pop
-	
 	return loginItemFound;
 }
 
-- (void)setLaunchOnLogin:(BOOL)launchOnLogin
+- (void)legacySetLaunchOnLogin:(BOOL)launchOnLogin
 {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
 	LSSharedFileListRef loginItemsListRef = LSSharedFileListCreate(NULL, kLSSharedFileListSessionLoginItems, NULL);
-	
-	if (loginItemsListRef)
-	{
-		NSURL *bundleURL = [NSURL fileURLWithPath:[[NSBundle mainBundle] bundlePath]];
-		
-		if (launchOnLogin)
-		{
-			NSDictionary *properties = @{@"com.apple.loginitem.HideOnLaunch": @YES};
-			LSSharedFileListItemRef itemRef = LSSharedFileListInsertItemURL(loginItemsListRef, kLSSharedFileListItemLast, NULL, NULL, (__bridge CFURLRef)bundleURL, (__bridge CFDictionaryRef)properties, NULL);
-			if (itemRef)
-				CFRelease(itemRef);
-		}
-		else
-		{
-			CFArrayRef snapshotRef = LSSharedFileListCopySnapshot(loginItemsListRef, NULL);
-			NSArray *loginItems = (NSArray *)CFBridgingRelease(snapshotRef);
+	if (!loginItemsListRef) return;
 
-			for (id item in loginItems)
-			{
-				LSSharedFileListItemRef itemRef = (__bridge LSSharedFileListItemRef)item;
-				CFURLRef itemURLRef = LSSharedFileListItemCopyResolvedURL(itemRef, 0, NULL);
-				NSURL *itemURL = (NSURL *)CFBridgingRelease(itemURLRef);
-				
-				if ([itemURL isEqual:bundleURL])
-					LSSharedFileListItemRemove(loginItemsListRef, itemRef);
-			}
-		}
-		
-		CFRelease(loginItemsListRef);
+	NSURL *bundleURL = [NSURL fileURLWithPath:[[NSBundle mainBundle] bundlePath]];
+
+	if (launchOnLogin)
+	{
+		NSDictionary *properties = @{@"com.apple.loginitem.HideOnLaunch": @YES};
+		LSSharedFileListItemRef itemRef = LSSharedFileListInsertItemURL(loginItemsListRef, kLSSharedFileListItemLast, NULL, NULL, (__bridge CFURLRef)bundleURL, (__bridge CFDictionaryRef)properties, NULL);
+		if (itemRef)
+			CFRelease(itemRef);
 	}
-#pragma clang diagnostic pop
+	else
+	{
+		NSArray *loginItems = (NSArray *)CFBridgingRelease(LSSharedFileListCopySnapshot(loginItemsListRef, NULL));
+
+		for (id item in loginItems)
+		{
+			LSSharedFileListItemRef itemRef = (__bridge LSSharedFileListItemRef)item;
+			NSURL *itemURL = (NSURL *)CFBridgingRelease(LSSharedFileListItemCopyResolvedURL(itemRef, 0, NULL));
+
+			if ([itemURL isEqual:bundleURL])
+				LSSharedFileListItemRemove(loginItemsListRef, itemRef);
+		}
+	}
+
+	CFRelease(loginItemsListRef);
 }
+
+#pragma clang diagnostic pop
 
 - (IBAction)launchOnLoginChanged:(id)sender
 {
