@@ -47,6 +47,11 @@
 @property (strong) IBOutlet NSMenuItem *timedQuitItem;
 @property (strong) NSStatusItem *statusItem;
 
+// Programmatic entry point for the timed-quit timer (used by -timedQuit: after
+// the user confirms via the modal panel, and by the launch-time hidden pref
+// TimedQuitAtLaunchMinutes; see issue #19).
+- (void)startTimedQuitWithMinutes:(int)minutes;
+
 - (IBAction)showAbout:(id)sender;
 - (IBAction)showReadMe:(id)sender;
 - (IBAction)showProductHomePage:(id)sender;
