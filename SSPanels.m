@@ -47,7 +47,7 @@ NSWindow *ssAboutPanel = nil;
 		NSString *appName = [infoDictionary objectForKey:(NSString *)kCFBundleNameKey];
 		NSString *versionString = [infoDictionary objectForKey:(NSString *)kCFBundleVersionKey];
 		
-		ssAboutPanel = [[NSWindow standardSSAboutPanelForAppName:appName versionString:versionString icon:[NSApp SSApplicationIconScaledToSize:NSMakeSize(48, 48)] urlDictionary:urlDict hideOnDeactivate:hideOnDeactivate] retain];
+		ssAboutPanel = [[NSWindow standardSSAboutPanelForAppName:appName versionString:versionString icon:[NSApp SSApplicationIconScaledToSize:NSMakeSize(48, 48)] urlDictionary:urlDict hideOnDeactivate:hideOnDeactivate]];
 		
 		[[NSNotificationCenter defaultCenter] addObserver:NSApp selector:@selector(SSAboutWindowWillClose:) name:NSWindowWillCloseNotification object:ssAboutPanel];
 	}
@@ -167,19 +167,19 @@ NSWindow *ssAboutPanel = nil;
 	[copyrightView setAlignment:NSTextAlignmentCenter];
     [copyrightView setTextColor:[NSColor blackColor]];
     [copyrightView setBackgroundColor:[NSColor clearColor]];
-	[contentView addSubview:topThird];		[topThird release];
-	[contentView addSubview:middleThird];	[middleThird release];
-	[contentView addSubview:bottomThird];	[bottomThird release];
-	[contentView addSubview:upperDivider];	[upperDivider release];
-	[contentView addSubview:lowerDivider];	[lowerDivider release];
-	[contentView addSubview:appIconView];	[appIconView release];
-	[contentView addSubview:stickIconView];	[stickIconView release];
-	[contentView addSubview:appNameView];	[appNameView release];
-	[contentView addSubview:versionView];	[versionView release];
-	[contentView addSubview:authorView];	[authorView release];
-	[contentView addSubview:stickView];		[stickView release];
-	[contentView addSubview:copyrightView];	[copyrightView release];
-	[contentView addSubview:bodyView];		[bodyView release];
+	[contentView addSubview:topThird];		
+	[contentView addSubview:middleThird];	
+	[contentView addSubview:bottomThird];	
+	[contentView addSubview:upperDivider];	
+	[contentView addSubview:lowerDivider];	
+	[contentView addSubview:appIconView];	
+	[contentView addSubview:stickIconView];	
+	[contentView addSubview:appNameView];	
+	[contentView addSubview:versionView];	
+	[contentView addSubview:authorView];	
+	[contentView addSubview:stickView];		
+	[contentView addSubview:copyrightView];	
+	[contentView addSubview:bodyView];		
 	
 	[authorView fixText:emailString toGoToLink:@"mailto:bhaller@sticksoftware.com"];
 	[stickView fixText:urlString toGoToLink:@"http://www.sticksoftware.com/"];
@@ -198,7 +198,7 @@ NSWindow *ssAboutPanel = nil;
 	[aboutWindow setReleasedWhenClosed:YES];
 	[aboutWindow setHidesOnDeactivate:hideFlag];
 	
-	return [aboutWindow autorelease];
+	return aboutWindow;
 	}
 }
 

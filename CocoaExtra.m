@@ -93,7 +93,7 @@ NSString *SSTestLocalizedStringFromTable(NSString *key, NSString *table)
     NSString *tfString = [self stringValue];
     NSRange urlRange = [tfString rangeOfString:text options:NSBackwardsSearch];
     int length = (int)[tfString length];
-	NSMutableParagraphStyle *pStyle = [[[NSParagraphStyle defaultParagraphStyle] mutableCopy] autorelease];
+	NSMutableParagraphStyle *pStyle = [[NSParagraphStyle defaultParagraphStyle] mutableCopy];
     NSTextView *tv;
     NSTextStorage *ts;
 	NSRect viewFrame = [self frame];
@@ -124,7 +124,6 @@ NSString *SSTestLocalizedStringFromTable(NSString *key, NSString *table)
 	
 	[tv setFrame:viewFrame];			// set the frame again, to counteract an apparent AppKit bug...
     [[self superview] addSubview:tv];
-    [tv release];
     [self removeFromSuperview];
 }
 
@@ -171,10 +170,7 @@ NSModalResponse SSRunAlertPanel(NSString *title, NSString *msg, NSString *defaul
 	[alert setAlertStyle:NSAlertStyleWarning];
 	
 	NSModalResponse value = [alert runModal];
-	
-	[alert release];
-	[resolvedMessage release];
-	
+
     return value;
 }
 
@@ -199,10 +195,7 @@ NSModalResponse SSRunInformationalAlertPanel(NSString *title, NSString *msg, NSS
 	[alert setAlertStyle:NSAlertStyleInformational];
 	
 	NSModalResponse value = [alert runModal];
-	
-	[alert release];
-	[resolvedMessage release];
-	
+
     return value;
 }
 
@@ -227,10 +220,7 @@ NSModalResponse SSRunCriticalAlertPanel(NSString *title, NSString *msg, NSString
 	[alert setAlertStyle:NSAlertStyleCritical];
 	
 	NSModalResponse value = [alert runModal];
-	
-	[alert release];
-	[resolvedMessage release];
-	
+
     return value;
 }
 
@@ -315,7 +305,7 @@ NSModalResponse SSRunCriticalAlertPanel(NSString *title, NSString *msg, NSString
 	[context setImageInterpolation:savedInterpolation];
 	[icon unlockFocus];
 	
-	return [icon autorelease];
+	return icon;
 }
 
 @end
@@ -406,7 +396,7 @@ BOOL ScreenIsLocked(void)
 	if (!sessionDict)
 		return NO;
 	
-	BOOL isLocked = ([[(NSDictionary *)sessionDict objectForKey:@"CGSSessionScreenIsLocked"] intValue] == 1);
+	BOOL isLocked = ([[(__bridge NSDictionary *)sessionDict objectForKey:@"CGSSessionScreenIsLocked"] intValue] == 1);
 	
 	CFRelease(sessionDict);
 	return isLocked;

@@ -37,11 +37,6 @@ static NSString *VersionCheckingEnabledDefaultsKey = @"DoVersionCheck";
 	return self;
 }
 
-- (void)dealloc
-{
-	[super dealloc];
-}
-
 - (void)askUserAboutAutomaticVersionCheck
 {
 	NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
@@ -166,7 +161,7 @@ static NSString *VersionCheckingEnabledDefaultsKey = @"DoVersionCheck";
 	NSDictionary *infoDictionary = [mainBundle infoDictionary];
 	NSString *appVersionString = [infoDictionary objectForKey:(NSString *)kCFBundleVersionKey];
 	NSString *bundleName = [infoDictionary objectForKey:(NSString *)kCFBundleNameKey];
-	NSString *versionDataString = (versionData ? [[[NSString alloc] initWithData:versionData encoding:NSMacOSRomanStringEncoding] autorelease] : nil);
+	NSString *versionDataString = (versionData ? [[NSString alloc] initWithData:versionData encoding:NSMacOSRomanStringEncoding] : nil);
 	NSString *webVersionString = [self versionStringFromFullString:versionDataString bundleIdentifier:bundleIdentifier];
 	
 #if 0
@@ -270,7 +265,7 @@ static NSString *VersionCheckingEnabledDefaultsKey = @"DoVersionCheck";
 			SSProgressPanel *progressPanel;
 			BOOL loadCancelledByUser = NO;
 			
-			progressPanel = [[SSProgressPanel progressPanelModalForWindow:nil title:SSLocalizedStringFromTable(@"Version Check", @"VersionCheck", @"Version Check panels title") subtitle:SSLocalizedStringFromTable(@"Checking for a new version...", @"VersionCheck", @"Version Check progress string") determinate:NO] retain];
+			progressPanel = [SSProgressPanel progressPanelModalForWindow:nil title:SSLocalizedStringFromTable(@"Version Check", @"VersionCheck", @"Version Check panels title") subtitle:SSLocalizedStringFromTable(@"Checking for a new version...", @"VersionCheck", @"Version Check progress string") determinate:NO];
 			[progressPanel setGiveTimeToRunLoop:YES];
 			[progressPanel setThresholdTime:1.0];
 			[progressPanel startNewTask];
@@ -284,7 +279,7 @@ static NSString *VersionCheckingEnabledDefaultsKey = @"DoVersionCheck";
 				}
 			}
 			
-			[progressPanel finishAndRelease];
+			[progressPanel finish];
 			
 			if (loadCancelledByUser)
 				[task cancel];

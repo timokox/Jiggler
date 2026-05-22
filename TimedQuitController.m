@@ -98,8 +98,6 @@ static NSString *TimedQuitMinutesDefaultsKey = @"TimedQuitMinutes";
     if (!timedQuitPanel)
 	{
 		[[NSBundle mainBundle] loadNibNamed:@"TimedQuit" owner:self topLevelObjects:NULL];
-		
-		[timedQuitPanel retain];	// we own this panel, so we retain it; could make it a retain property instead, whatever
 	}
 	
     [hoursTextfield setIntValue:hoursToQuit];

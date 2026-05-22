@@ -42,10 +42,10 @@
 	id <NSObject> activityToken;
 }
 
-@property (retain) IBOutlet NSMenu *statusItemMenu;
-@property (retain) IBOutlet NSMenuItem *masterSwitchItem;
-@property (retain) IBOutlet NSMenuItem *timedQuitItem;
-@property (retain) NSStatusItem *statusItem;
+@property (strong)IBOutlet NSMenu *statusItemMenu;
+@property (strong)IBOutlet NSMenuItem *masterSwitchItem;
+@property (strong)IBOutlet NSMenuItem *timedQuitItem;
+@property (strong)NSStatusItem *statusItem;
 
 - (IBAction)showAbout:(id)sender;
 - (IBAction)showReadMe:(id)sender;

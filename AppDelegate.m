@@ -58,7 +58,7 @@ extern OSErr UpdateSystemActivity(UInt8 activity) __attribute__((weak_import));
 // from http://stackoverflow.com/questions/1413135/tinting-a-grayscale-nsimage-or-ciimage
 - (NSImage *)imageTintedWithColor:(NSColor *)tint
 {
-	NSImage *image = [[self copy] autorelease];
+	NSImage *image = [self copy];
 	if (tint) {
 		[image lockFocus];
 		[tint set];
@@ -118,8 +118,8 @@ extern OSErr UpdateSystemActivity(UInt8 activity) __attribute__((weak_import));
 	
 	[scaledJigglerImage setSize:NSMakeSize(barThickness - 2, barThickness - 2)];
 	
-	scaledJigglerImageRed = [[scaledJigglerImage imageTintedWithColor:[NSColor colorWithCalibratedRed:1.0 green:0.0 blue:0.0 alpha:0.4]] retain];
-	scaledJigglerImageGreen = [[scaledJigglerImage imageTintedWithColor:[NSColor colorWithCalibratedRed:0.0 green:1.0 blue:0.0 alpha:0.3]] retain];
+	scaledJigglerImageRed = [scaledJigglerImage imageTintedWithColor:[NSColor colorWithCalibratedRed:1.0 green:0.0 blue:0.0 alpha:0.4]];
+	scaledJigglerImageGreen = [scaledJigglerImage imageTintedWithColor:[NSColor colorWithCalibratedRed:0.0 green:1.0 blue:0.0 alpha:0.3]];
 	
 	[self fixStatusItemIcon];
 	
@@ -152,7 +152,6 @@ extern OSErr UpdateSystemActivity(UInt8 activity) __attribute__((weak_import));
 	
 	// Prevent app nap; see https://lapcatsoftware.com/articles/prevent-app-nap.html
     activityToken = [[NSProcessInfo processInfo] beginActivityWithOptions:NSActivityUserInitiatedAllowingIdleSystemSleep reason:@"No napping on the job!"];
-	[activityToken retain];
 }
 
 - (void)applicationWillTerminate:(NSNotification *)aNotification
@@ -164,7 +163,6 @@ extern OSErr UpdateSystemActivity(UInt8 activity) __attribute__((weak_import));
 	
 	// Release our anti-App-Nap token
     [[NSProcessInfo processInfo] endActivity:activityToken];
-	[activityToken release];
 	activityToken = nil;
 }
 
@@ -487,8 +485,7 @@ extern OSErr UpdateSystemActivity(UInt8 activity) __attribute__((weak_import));
 		NSAppleEventDescriptor *returnDesc = nil;
 		
 		returnDesc = [musicScript executeAndReturnError:&errorDict];
-		[musicScript autorelease];
-		
+
 		return [[returnDesc stringValue] isEqualToString:@"kPSP"];
 	}
 	
@@ -765,10 +762,9 @@ extern OSErr UpdateSystemActivity(UInt8 activity) __attribute__((weak_import));
 				// This is shared functionality across all jiggle styles; it implements the base "zen jiggle"
 				// functionality and the various bookkeeping activities needed when jiggling occurs.
 				[self declareUserActivity];
-				
-				[timeOfLastJiggle release];
+
 				timeOfLastJiggle = [[NSDate alloc] init];
-				
+
 				[self setJigglingActive:YES];
 			}
 			else
@@ -776,15 +772,13 @@ extern OSErr UpdateSystemActivity(UInt8 activity) __attribute__((weak_import));
 				// We've determined that we've been idle long enough, but our jiggle conditions have not been met.  They aren't
 				// likely to change with great rapidity, so to avoid burning CPU, we will set our timer so that we don't check
 				// too often.  If we put it to ((now - jiggleSeconds) + 5), we recheck jiggle conditions every 5 seconds.
-				[timeOfLastJiggle release];
-				timeOfLastJiggle = [[NSDate dateWithTimeIntervalSinceNow:(-jiggleSeconds) + 5] retain];
+				timeOfLastJiggle = [NSDate dateWithTimeIntervalSinceNow:(-jiggleSeconds) + 5];
 			}
 		}
 		else
 		{
 			// Set timeOfLastJiggle to reduce the amount of work we do on this callout in the future
-			[timeOfLastJiggle release];
-			timeOfLastJiggle = [[NSDate dateWithTimeIntervalSinceNow:-idleTime] retain];
+			timeOfLastJiggle = [NSDate dateWithTimeIntervalSinceNow:-idleTime];
 		}
 	}
 }

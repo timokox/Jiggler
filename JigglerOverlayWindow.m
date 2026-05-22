@@ -153,7 +153,6 @@ static NSString *JigglerOverlayVerticalPositionDefaultsKey = @"OverlayVerticalPo
 	
 	// Make our icon view be our content view
 	[overlayWindow setContentView:iconView];
-	[iconView release];
 }
 
 - (void)timer:(id)unused
