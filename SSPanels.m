@@ -47,7 +47,7 @@ NSWindow *ssAboutPanel = nil;
 		NSString *appName = [infoDictionary objectForKey:(NSString *)kCFBundleNameKey];
 		NSString *versionString = [infoDictionary objectForKey:(NSString *)kCFBundleVersionKey];
 		
-		ssAboutPanel = [[NSWindow standardSSAboutPanelForAppName:appName versionString:versionString icon:[NSApp SSApplicationIconScaledToSize:NSMakeSize(48, 48)] urlDictionary:urlDict hideOnDeactivate:hideOnDeactivate]];
+		ssAboutPanel = [NSWindow standardSSAboutPanelForAppName:appName versionString:versionString icon:[NSApp SSApplicationIconScaledToSize:NSMakeSize(48, 48)] urlDictionary:urlDict hideOnDeactivate:hideOnDeactivate];
 		
 		[[NSNotificationCenter defaultCenter] addObserver:NSApp selector:@selector(SSAboutWindowWillClose:) name:NSWindowWillCloseNotification object:ssAboutPanel];
 	}
