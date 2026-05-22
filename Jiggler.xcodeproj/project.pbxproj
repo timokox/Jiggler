@@ -39,9 +39,7 @@
 		987BCA0A247F5AD80069B2FC /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		987BCA0C247F5AD80069B2FC /* Jiggler.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Jiggler.entitlements; sourceTree = "<group>"; };
 		987BCA14247F5BBD0069B2FC /* LICENSE */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
-		987BCA15247F5BBD0069B2FC /* TO DO */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "TO DO"; sourceTree = "<group>"; };
 		987BCA16247F5BBD0069B2FC /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
-		987BCA17247F5BBD0069B2FC /* README.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = README.html; sourceTree = "<group>"; };
 		987BCA1E247F5CAE0069B2FC /* PrefsController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PrefsController.h; sourceTree = "<group>"; };
 		987BCA1F247F5CAE0069B2FC /* JigglerOverlayWindow.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = JigglerOverlayWindow.m; sourceTree = "<group>"; };
 		987BCA20247F5CAE0069B2FC /* JigglerOverlayWindow.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JigglerOverlayWindow.h; sourceTree = "<group>"; };
@@ -84,9 +82,7 @@
 			isa = PBXGroup;
 			children = (
 				987BCA14247F5BBD0069B2FC /* LICENSE */,
-				987BCA17247F5BBD0069B2FC /* README.html */,
 				987BCA16247F5BBD0069B2FC /* README.md */,
-				987BCA15247F5BBD0069B2FC /* TO DO */,
 				987BCA12247F5B750069B2FC /* Classes */,
 				987BCA13247F5B7F0069B2FC /* Resources */,
 				987BCA1D247F5C630069B2FC /* Other sources */,
