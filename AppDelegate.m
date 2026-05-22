@@ -139,6 +139,14 @@ extern OSErr UpdateSystemActivity(UInt8 activity) __attribute__((weak_import));
 	
 	// Prevent app nap; see https://lapcatsoftware.com/articles/prevent-app-nap.html
     activityToken = [[NSProcessInfo processInfo] beginActivityWithOptions:NSActivityUserInitiatedAllowingIdleSystemSleep reason:@"No napping on the job!"];
+
+	// Issue #19: hidden opt-in to start Timed Quit automatically on launch.
+	// Enable with:  defaults write com.stick.app.jiggler TimedQuitAtLaunchMinutes -int 240
+	// (240 = 4 hours; any positive integer in minutes works.)  Set to 0 or remove
+	// the key to disable.  No UI exposed yet — power-user knob.
+	NSInteger launchMinutes = [[NSUserDefaults standardUserDefaults] integerForKey:@"TimedQuitAtLaunchMinutes"];
+	if (launchMinutes > 0)
+		[self startTimedQuitWithMinutes:(int)launchMinutes];
 }
 
 - (void)applicationWillTerminate:(NSNotification *)aNotification
@@ -886,22 +894,27 @@ extern OSErr UpdateSystemActivity(UInt8 activity) __attribute__((weak_import));
 		[NSApp performSelector:@selector(terminate:) withObject:nil afterDelay:0.5 inModes:@[NSDefaultRunLoopMode]];
 }
 
+- (void)startTimedQuitWithMinutes:(int)minutes
+{
+	if (minutes <= 0)
+		return;
+
+	minutesRemainingToTimedQuit = minutes;
+
+	NSRunLoop *runLoop = [NSRunLoop currentRunLoop];
+
+	timedQuitTimer = [NSTimer timerWithTimeInterval:60.0 target:self selector:@selector(_timedQuitTimer:) userInfo:nil repeats:YES];
+	[runLoop addTimer:timedQuitTimer forMode:NSRunLoopCommonModes];
+	[runLoop addTimer:timedQuitTimer forMode:NSModalPanelRunLoopMode];		// not clear whether this is part of NSRunLoopCommonModes...
+	[runLoop addTimer:timedQuitTimer forMode:NSEventTrackingRunLoopMode];	// not clear whether this is part of NSRunLoopCommonModes...
+
+	[self fixTimedQuitMenuItem];
+	[self fixStatusItemIcon];
+}
+
 - (IBAction)timedQuit:(id)sender
 {
-	minutesRemainingToTimedQuit = [TimedQuitController runPanelForMinutesUntilQuit];
-	
-	if (minutesRemainingToTimedQuit)
-	{
-		NSRunLoop *runLoop = [NSRunLoop currentRunLoop];
-		
-		timedQuitTimer = [NSTimer timerWithTimeInterval:60.0 target:self selector:@selector(_timedQuitTimer:) userInfo:nil repeats:YES];
-		[runLoop addTimer:timedQuitTimer forMode:NSRunLoopCommonModes];
-		[runLoop addTimer:timedQuitTimer forMode:NSModalPanelRunLoopMode];		// not clear whether this is part of NSRunLoopCommonModes...
-		[runLoop addTimer:timedQuitTimer forMode:NSEventTrackingRunLoopMode];	// not clear whether this is part of NSRunLoopCommonModes...
-		
-		[self fixTimedQuitMenuItem];
-		[self fixStatusItemIcon];
-	}
+	[self startTimedQuitWithMinutes:[TimedQuitController runPanelForMinutesUntilQuit]];
 }
 
 - (IBAction)cancelTimedQuit:(id)sender
