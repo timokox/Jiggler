@@ -1,33 +1,21 @@
 /*
- *  The strings in this file are used to build the Version Check window panels, which are done in code, not in nibs
+ *  Strings for the Version Check panels (built in code, not in nibs).
  */
 
 /* Version Check panels title */
 "Version Check" = "Version Check";
 
 /* Version Check offer panel text */
-"Version Check offer panel text" = "%@ can check on the web automatically for a newer version of itself.  Would you like this check to be performed for you each time %@ starts up?  (You can always check manually, using the Check Version Now menu command.)";
-
-/* Version Check progress string */
-"Checking for a new version..." = "Checking for a new version...";
+"Version Check offer panel text" = "%@ can check automatically for a newer version of itself.  Would you like this check to be performed each time %@ starts up?  (You can always check manually, using the Check Version Now menu command.)";
 
 /* Version Check up to date */
 "Version Check up to date" = "Your version of %@, %@, is up to date.";
 
 /* Version Check new version available */
-"Version Check new version available" = "A newer version of %@, %@, is available (you have version %@).\n\nWould you like to begin a download of the new version in your default browser?";
-
-/* Version Check download failed error */
-"Version Check download failed error" = "The download did not begin successfully (your default web browser may be configured incorrectly in the Internet panel of System Preferences).  You may wish to manually download the latest version from www.sticksoftware.com.";
+"Version Check new version available" = "A newer version of %@, %@, is available (you have version %@).\n\nWould you like to open the release page in your default browser?";
 
 /* Version Check info unavailable error */
-"Version Check info unavailable error" = "The version check failed; the information needed appears to be unavailable.\n\nIf you wish to, feel free to send email to support@sticksoftware.com to help us resolve this issue.";
-
-/* Version Check info unavailable error (sending email) */
-"Version Check info unavailable error (sending email)" = "The version check failed; the information needed appears to be unavailable.\n\nAn email message will be automatically generated to Stick Software regarding this problem; please send it, to help us resolve this issue.";
-
-/* Version Check network unavailable error (long version) */
-"Version Check network unavailable error (long version)" = "The automatic version check failed; the network may not be accessible at this time, or the Stick Software web site may be temporarily unavailable.\n\nYou can initiate a version check at any time using the Check Version Now menu command.  You can disable the automatic version check using the Automatic Checking... menu command.";
+"Version Check info unavailable error" = "The version check failed; no release information is available right now.";
 
 /* Version Check network unavailable error (short version) */
-"Version Check network unavailable error (short version)" = "The version check failed; the network may not be accessible at this time, or the Stick Software web site may be temporarily unavailable.";
+"Version Check network unavailable error (short version)" = "The version check failed; the network may not be accessible at this time, or the release server may be temporarily unavailable.";

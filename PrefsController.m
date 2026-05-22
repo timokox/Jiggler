@@ -224,11 +224,6 @@ static NSString *FrontAppNameComponentDefaultsKey = @"FrontAppNameComponent";
 	[preferencesWindow makeFirstResponder:preferencesWindow];
 }
 
-- (void)closeWindow
-{
-	[preferencesWindow close];
-}
-
 - (int)jiggleSeconds
 {
 	return jiggleSeconds;

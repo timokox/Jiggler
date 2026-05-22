@@ -77,7 +77,6 @@
 + (PrefsController *)sharedPrefsController;
 
 - (void)showWindow;
-- (void)closeWindow;
 
 // API for getting specific prefs values
 - (int)jiggleSeconds;

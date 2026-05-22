@@ -17,8 +17,6 @@ NSWindow *ssAboutPanel = nil;
 #define rightTextRightMargin 66
 #define whiteBandHeight 74
 #define bodyMarginWidth 20
-#define feeTextRightMargin 30
-#define buttonEdgeMargin 23
 
 @interface NSApplication (SSPanelCreation)
 - (void)SSAboutWindowWillClose:(NSNotification *)note;
