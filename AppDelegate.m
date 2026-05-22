@@ -304,10 +304,12 @@ extern OSErr UpdateSystemActivity(UInt8 activity) __attribute__((weak_import));
 		lastUserMouseLocation.y = cgMouseLocation.y;
 	}
 	
-	// Figure out the distance scale we want to move over
+	// Figure out the distance scale we want to move over.  The floor matches the
+	// "+ 2" floor in -[PrefsController jiggleDistance] (issue #43); the ceiling is
+	// the upper end of the quadratic (20² + 2 == 402, rounded to 410 for headroom).
 	int baseTolerance = [[PrefsController sharedPrefsController] jiggleDistance];
-	
-	if (baseTolerance < 10) baseTolerance = 10;
+
+	if (baseTolerance < 2) baseTolerance = 2;
 	if (baseTolerance > 410) baseTolerance = 410;
 	
 	// Find a suitable new mouse location.  A suitable location is sufficiently close to the last seen user-set mouse
