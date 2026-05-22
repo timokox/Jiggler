@@ -22,17 +22,6 @@
 static NSString *JiggleMasterSwitchDefaultsKey = @"JiggleMasterSwitch";	// BOOL, YES is jiggling on
 
 
-/*
-// This block is for GetBSDProcessList() below; see Technical Q&A QA1123, Getting List of All Processes on Mac OS X
-#include <assert.h>
-#include <errno.h>
-#include <stdbool.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <sys/sysctl.h>
-typedef struct kinfo_proc kinfo_proc;
-*/
-
 double JigglerIdleTime(void);
 
 
@@ -81,9 +70,7 @@ extern OSErr UpdateSystemActivity(UInt8 activity) __attribute__((weak_import));
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification
 {
 	NSRunLoop *runLoop = [NSRunLoop currentRunLoop];
-	
-	//[self checkJiggleTime];
-	
+
 	// We check with a repeating timer, to avoid issues with rescheduling and such.
 	// We do it this frequently because we need to notice activity to fade out our overlay.
 	jiggleTimer = [NSTimer timerWithTimeInterval:0.25 target:self selector:@selector(periodicJiggleStatusCheck:) userInfo:nil repeats:YES];
@@ -641,20 +628,7 @@ extern OSErr UpdateSystemActivity(UInt8 activity) __attribute__((weak_import));
 				[self setJigglingActive:NO];
 		}
 	}
-	
-#if 0
-	// BCH 12/9/2025: This is debugging code that is normally disabled since it logs quite a bit.
-	if (YES)
-	{
-		if (idleTime < 0.0)
-			idleTime = JigglerIdleTime();
-			
-		NSLog(@"JigglerIdleTime() == %f, jiggleSeconds == %f, timeSinceLastJiggle == %f", idleTime, jiggleSeconds, timeSinceLastJiggle);
-	}
-	else
-		NSLog(@"jiggleSeconds == %f, timeSinceLastJiggle == %f", jiggleSeconds, timeSinceLastJiggle);
-#endif
-	
+
 	// If we last jiggled jiggleSeconds ago (or longer), it's time for another jiggle as long as conditions are met.
 	if (timeSinceLastJiggle > jiggleSeconds)
 	{
@@ -777,36 +751,6 @@ extern OSErr UpdateSystemActivity(UInt8 activity) __attribute__((weak_import));
 		}
 	}
 }
-
-#if 0
-// BCH 12/9/2025: I think this got disabled because the GetDimmingTimeout() function disappeared on us...?  It was
-// actually a nice thing that Jiggler checked this and warned the user, because people would get confused when
-// their screensaver came on even though Jiggler was enabled (because their jiggle time was too long).  But I
-// don't know whether there's any way to get the screensaver/sleep time nowadays.
-- (void)checkJiggleTime
-{
-	double jiggleSeconds = [[PrefsController sharedPrefsController] jiggleTime] * 60.0;
-	double screensaverDelay = GetDimmingTimeout();
-	
-	NSLog(@"screensaverDelay = %f", screensaverDelay);
-	
-	if (jiggleSeconds >= screensaverDelay)
-		NSRunCriticalAlertPanel(SSLocalizedString(@"Jiggler", @"Jiggle time warning panel title"), SSLocalizedString(@"The jiggle time you currently have set is longer than your screensaver or sleep delay, so Jiggler may not keep your machine alert.  You may wish to change your jiggle time in Jiggler's Preferences panel.", @"Jiggle time warning panel text"), SSLocalizedStringFromTable(@"OK button", @"Base", @"OK button"), nil, nil);
-}
-
-// Add to Localizable.strings:
-
-/*
- *	These strings are used to build the panel that warns the user that their chosen jiggle time may be too long
- */
-
-/* Jiggle time warning panel title */
-"Jiggler" = "Jiggler";
-
-/* Jiggle time warning panel text */
-"The jiggle time you currently have set is longer than your screensaver or sleep delay, so Jiggler may not keep your machine alert.  You may wish to change your jiggle time in Jiggler's Preferences panel.";
-
-#endif
 
 - (void)musicChanged:(NSNotification *)note
 {

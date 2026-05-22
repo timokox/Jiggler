@@ -10,8 +10,6 @@
 #import "CocoaExtra.h"
 
 
-NSString *paidUserNameDefaultsKey = @"PaidUserName";
-
 NSWindow *ssAboutPanel = nil;
 
 
@@ -58,11 +56,11 @@ NSWindow *ssAboutPanel = nil;
 
 + (NSWindow *)standardSSAboutPanelForAppName:(NSString *)appName versionString:(NSString *)versionString icon:(NSImage *)iconImage urlDictionary:(NSDictionary *)urlDict hideOnDeactivate:(BOOL)hideFlag
 {
-	NSString *fullVersionString = SSLocalizedString(@"Version %@", @"For the About box and splash panel");
-	NSString *authorString = SSLocalizedString(@"By Ben Haller (%@)", @"The authorship string in the About window");
-	NSString *stickString = SSLocalizedString(@"Visit %@ for more!", @"The Stick Software URL string in the About window");
-	NSString *copyrightString = SSLocalizedString(@"Copyright 2025 Stick Software, Ben Haller.  All Rights Reserved.", @"The copyright string in the About window");
-	NSString *bodyString = SSLocalizedString(@"About panel body text", @"The body text in the About panel");
+	NSString *fullVersionString = NSLocalizedString(@"Version %@", @"For the About box and splash panel");
+	NSString *authorString = NSLocalizedString(@"By Ben Haller (%@)", @"The authorship string in the About window");
+	NSString *stickString = NSLocalizedString(@"Visit %@ for more!", @"The Stick Software URL string in the About window");
+	NSString *copyrightString = NSLocalizedString(@"Copyright 2025 Stick Software, Ben Haller.  All Rights Reserved.", @"The copyright string in the About window");
+	NSString *bodyString = NSLocalizedString(@"About panel body text", @"The body text in the About panel");
 	
 	NSString *completedVersionString = [NSString stringWithFormat:fullVersionString, versionString];
 	NSString *emailString = @"bhaller@sticksoftware.com";

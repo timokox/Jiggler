@@ -46,7 +46,7 @@ static NSString *VersionCheckingEnabledDefaultsKey = @"DoVersionCheck";
 	NSString *appName = [infoDict objectForKey:(NSString *)kCFBundleNameKey];
 	NSModalResponse retval;
 	
-	retval = SSRunCriticalAlertPanel(SSLocalizedStringFromTable(@"Version Check", @"VersionCheck", @"Version Check panels title"), SSLocalizedStringFromTable(@"Version Check offer panel text", @"VersionCheck", @"Version Check offer panel text"), SSLocalizedStringFromTable(@"Yes button", @"Base", @"Yes button"), SSLocalizedStringFromTable(@"No button", @"Base", @"No button"), nil, appName, appName);
+	retval = SSRunCriticalAlertPanel(NSLocalizedStringFromTable(@"Version Check", @"VersionCheck", @"Version Check panels title"), NSLocalizedStringFromTable(@"Version Check offer panel text", @"VersionCheck", @"Version Check offer panel text"), NSLocalizedStringFromTable(@"Yes button", @"Base", @"Yes button"), NSLocalizedStringFromTable(@"No button", @"Base", @"No button"), nil, appName, appName);
 	
 	if (retval == NSAlertFirstButtonReturn)
 		doCheck = @"YES";
@@ -163,23 +163,6 @@ static NSString *VersionCheckingEnabledDefaultsKey = @"DoVersionCheck";
 	NSString *bundleName = [infoDictionary objectForKey:(NSString *)kCFBundleNameKey];
 	NSString *versionDataString = (versionData ? [[NSString alloc] initWithData:versionData encoding:NSMacOSRomanStringEncoding] : nil);
 	NSString *webVersionString = [self versionStringFromFullString:versionDataString bundleIdentifier:bundleIdentifier];
-	
-#if 0
-	NSLog(@"6.1 is later than 6.0: %@", [self webVersion:@"6.1" isLaterThanAppVersion:@"6.0"] ? @"YES" : @"NO");
-	NSLog(@"6.0 is later than 6.1: %@", [self webVersion:@"6.0" isLaterThanAppVersion:@"6.1"] ? @"YES" : @"NO");
-	NSLog(@"6.1.1 is later than 6.1: %@", [self webVersion:@"6.1.1" isLaterThanAppVersion:@"6.1"] ? @"YES" : @"NO");
-	NSLog(@"6.1 is later than 6.1.1: %@", [self webVersion:@"6.1" isLaterThanAppVersion:@"6.1.1"] ? @"YES" : @"NO");
-	NSLog(@"6.1 is later than 6.1b1: %@", [self webVersion:@"6.1" isLaterThanAppVersion:@"6.1b1"] ? @"YES" : @"NO");
-	NSLog(@"6.1b1 is later than 6.1: %@", [self webVersion:@"6.1b1" isLaterThanAppVersion:@"6.1"] ? @"YES" : @"NO");
-	NSLog(@"6.1 is later than 6.1a1: %@", [self webVersion:@"6.1" isLaterThanAppVersion:@"6.1a1"] ? @"YES" : @"NO");
-	NSLog(@"6.1a1 is later than 6.1: %@", [self webVersion:@"6.1a1" isLaterThanAppVersion:@"6.1"] ? @"YES" : @"NO");
-	NSLog(@"6.1b1 is later than 6.1a1: %@", [self webVersion:@"6.1b1" isLaterThanAppVersion:@"6.1a1"] ? @"YES" : @"NO");
-	NSLog(@"6.1a1 is later than 6.1b1: %@", [self webVersion:@"6.1a1" isLaterThanAppVersion:@"6.1b1"] ? @"YES" : @"NO");
-	NSLog(@"6.1a2 is later than 6.1a1: %@", [self webVersion:@"6.1a2" isLaterThanAppVersion:@"6.1a1"] ? @"YES" : @"NO");
-	NSLog(@"6.1a1 is later than 6.1a2: %@", [self webVersion:@"6.1a1" isLaterThanAppVersion:@"6.1a2"] ? @"YES" : @"NO");
-	NSLog(@"6.1b2 is later than 6.1b1: %@", [self webVersion:@"6.1b2" isLaterThanAppVersion:@"6.1b1"] ? @"YES" : @"NO");
-	NSLog(@"6.1b1 is later than 6.1b2: %@", [self webVersion:@"6.1b1" isLaterThanAppVersion:@"6.1b2"] ? @"YES" : @"NO");
-#endif
 
 	if (!webVersionString)
 	{
@@ -195,7 +178,7 @@ static NSString *VersionCheckingEnabledDefaultsKey = @"DoVersionCheck";
 		
 		if (mailURL)
 		{
-			SSRunCriticalAlertPanel(SSLocalizedStringFromTable(@"Version Check", @"VersionCheck", @"Version Check panels title"), SSLocalizedStringFromTable(@"Version Check info unavailable error (sending email)", @"VersionCheck", @"Version Check info unavailable error (sending email)"), SSLocalizedStringFromTable(@"OK button", @"Base", @"OK button"), nil, nil);
+			SSRunCriticalAlertPanel(NSLocalizedStringFromTable(@"Version Check", @"VersionCheck", @"Version Check panels title"), NSLocalizedStringFromTable(@"Version Check info unavailable error (sending email)", @"VersionCheck", @"Version Check info unavailable error (sending email)"), NSLocalizedStringFromTable(@"OK button", @"Base", @"OK button"), nil, nil);
 			
 			[[NSWorkspace sharedWorkspace] openURL:mailURL];
 		}
@@ -203,25 +186,25 @@ static NSString *VersionCheckingEnabledDefaultsKey = @"DoVersionCheck";
 		{
 			NSLog(@"mailURL didn't create from string:\n%@", mailURLString);
 			
-			SSRunCriticalAlertPanel(SSLocalizedStringFromTable(@"Version Check", @"VersionCheck", @"Version Check panels title"), SSLocalizedStringFromTable(@"Version Check info unavailable error", @"VersionCheck", @"Version Check info unavailable error"), SSLocalizedStringFromTable(@"OK button", @"Base", @"OK button"), nil, nil);
+			SSRunCriticalAlertPanel(NSLocalizedStringFromTable(@"Version Check", @"VersionCheck", @"Version Check panels title"), NSLocalizedStringFromTable(@"Version Check info unavailable error", @"VersionCheck", @"Version Check info unavailable error"), NSLocalizedStringFromTable(@"OK button", @"Base", @"OK button"), nil, nil);
 		}
 	}
 	else if ([self webVersion:webVersionString isLaterThanAppVersion:appVersionString])
 	{
-		if (SSRunAlertPanel(SSLocalizedStringFromTable(@"Version Check", @"VersionCheck", @"Version Check panels title"), SSLocalizedStringFromTable(@"Version Check new version available", @"VersionCheck", @"Version Check new version available"), SSLocalizedStringFromTable(@"Yes button", @"Base", @"Yes button"), SSLocalizedStringFromTable(@"No button", @"Base", @"No button"), nil, bundleName, webVersionString, appVersionString) == NSAlertFirstButtonReturn)
+		if (SSRunAlertPanel(NSLocalizedStringFromTable(@"Version Check", @"VersionCheck", @"Version Check panels title"), NSLocalizedStringFromTable(@"Version Check new version available", @"VersionCheck", @"Version Check new version available"), NSLocalizedStringFromTable(@"Yes button", @"Base", @"Yes button"), NSLocalizedStringFromTable(@"No button", @"Base", @"No button"), nil, bundleName, webVersionString, appVersionString) == NSAlertFirstButtonReturn)
 		{
 			NSString *productURLString = [NSString stringWithFormat:@"http://www.sticksoftware.com/software/%@.dmg.gz", bundleName];
 			NSURL *productURL = [NSURL URLWithString:productURLString];
 			
 			if (!productURL || ![[NSWorkspace sharedWorkspace] openURL:productURL])
 			{
-				SSRunCriticalAlertPanel(SSLocalizedStringFromTable(@"Version Check", @"VersionCheck", @"Version Check panels title"), SSLocalizedStringFromTable(@"Version Check download failed error", @"VersionCheck", @"Version Check download failed error"), SSLocalizedStringFromTable(@"OK button", @"Base", @"OK button"), nil, nil);
+				SSRunCriticalAlertPanel(NSLocalizedStringFromTable(@"Version Check", @"VersionCheck", @"Version Check panels title"), NSLocalizedStringFromTable(@"Version Check download failed error", @"VersionCheck", @"Version Check download failed error"), NSLocalizedStringFromTable(@"OK button", @"Base", @"OK button"), nil, nil);
 			}
 		}
 	}
 	else if (flag)
 	{
-		SSRunInformationalAlertPanel(SSLocalizedStringFromTable(@"Version Check", @"VersionCheck", @"Version Check panels title"), SSLocalizedStringFromTable(@"Version Check up to date", @"VersionCheck", @"Version Check up to date"), SSLocalizedStringFromTable(@"OK button", @"Base", @"OK button"), nil, nil, bundleName, appVersionString);
+		SSRunInformationalAlertPanel(NSLocalizedStringFromTable(@"Version Check", @"VersionCheck", @"Version Check panels title"), NSLocalizedStringFromTable(@"Version Check up to date", @"VersionCheck", @"Version Check up to date"), NSLocalizedStringFromTable(@"OK button", @"Base", @"OK button"), nil, nil, bundleName, appVersionString);
 	}
 }
 
@@ -250,10 +233,10 @@ static NSString *VersionCheckingEnabledDefaultsKey = @"DoVersionCheck";
 				else
 				{
 					if (flag)
-						SSRunCriticalAlertPanel(SSLocalizedStringFromTable(@"Version Check", @"VersionCheck", @"Version Check panels title"), SSLocalizedStringFromTable(@"Version Check network unavailable error (short version)", @"VersionCheck", @"Version Check network unavailable error (short version)"), SSLocalizedStringFromTable(@"OK button", @"Base", @"OK button"), nil, nil);
+						SSRunCriticalAlertPanel(NSLocalizedStringFromTable(@"Version Check", @"VersionCheck", @"Version Check panels title"), NSLocalizedStringFromTable(@"Version Check network unavailable error (short version)", @"VersionCheck", @"Version Check network unavailable error (short version)"), NSLocalizedStringFromTable(@"OK button", @"Base", @"OK button"), nil, nil);
 					// Commented out; we don't want to show an error when a non-user-requested version check fails, that was a bad policy decision
 					//else
-					//	SSRunCriticalAlertPanel(SSLocalizedStringFromTable(@"Version Check", @"VersionCheck", @"Version Check panels title"), SSLocalizedStringFromTable(@"Version Check network unavailable error (long version)", @"VersionCheck", @"Version Check network unavailable error (long version)"), SSLocalizedStringFromTable(@"OK button", @"Base", @"OK button"), nil, nil);
+					//	SSRunCriticalAlertPanel(NSLocalizedStringFromTable(@"Version Check", @"VersionCheck", @"Version Check panels title"), NSLocalizedStringFromTable(@"Version Check network unavailable error (long version)", @"VersionCheck", @"Version Check network unavailable error (long version)"), NSLocalizedStringFromTable(@"OK button", @"Base", @"OK button"), nil, nil);
 				}
 			});
 		}];
@@ -265,7 +248,7 @@ static NSString *VersionCheckingEnabledDefaultsKey = @"DoVersionCheck";
 			SSProgressPanel *progressPanel;
 			BOOL loadCancelledByUser = NO;
 			
-			progressPanel = [SSProgressPanel progressPanelModalForWindow:nil title:SSLocalizedStringFromTable(@"Version Check", @"VersionCheck", @"Version Check panels title") subtitle:SSLocalizedStringFromTable(@"Checking for a new version...", @"VersionCheck", @"Version Check progress string") determinate:NO];
+			progressPanel = [SSProgressPanel progressPanelModalForWindow:nil title:NSLocalizedStringFromTable(@"Version Check", @"VersionCheck", @"Version Check panels title") subtitle:NSLocalizedStringFromTable(@"Checking for a new version...", @"VersionCheck", @"Version Check progress string") determinate:NO];
 			[progressPanel setGiveTimeToRunLoop:YES];
 			[progressPanel setThresholdTime:1.0];
 			[progressPanel startNewTask];

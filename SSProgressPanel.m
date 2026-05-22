@@ -487,7 +487,7 @@
 	NSSize panelSize = NSMakeSize(331, 128);
 	NSImageView *iconView = [[NSImageView alloc] initWithFrame:NSMakeRect(24, panelSize.height - (16 + 64), 64, 64)];
 	NSButton *cancelButton = [[NSButton alloc] initWithFrame:NSMakeRect(panelSize.width - 110, 11, 90, 34)];
-	NSString *buttonString = SSLocalizedStringFromTable(@"Stop button", @"Base", @"Stop button");
+	NSString *buttonString = NSLocalizedStringFromTable(@"Stop button", @"Base", @"Stop button");
 	NSView *contentView;
 	NSFont *lucida13bold = [NSFont boldSystemFontOfSize:[NSFont systemFontSize]];
 	NSFont *lucida13 = [NSFont systemFontOfSize:[NSFont systemFontSize]];
