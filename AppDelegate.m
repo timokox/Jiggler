@@ -170,6 +170,31 @@ extern OSErr UpdateSystemActivity(UInt8 activity) __attribute__((weak_import));
 	NSInteger launchMinutes = [[NSUserDefaults standardUserDefaults] integerForKey:@"TimedQuitAtLaunchMinutes"];
 	if (launchMinutes > 0)
 		[self startTimedQuitWithMinutes:(int)launchMinutes];
+
+	// Issue #2: hidden opt-in to flip the master switch OFF after N minutes
+	// without quitting the app.  Useful as a "stop jiggling at the end of the
+	// work day" knob.  Differs from TimedQuitAtLaunchMinutes in that the app
+	// keeps running and the user can re-enable from the menu.
+	//
+	//   defaults write com.stick.app.jiggler DisableAfterMinutes -int 480   # 8h
+	//
+	// Set to 0 or remove to disable.  Power-user knob, no UI yet.
+	NSInteger disableAfter = [[NSUserDefaults standardUserDefaults] integerForKey:@"DisableAfterMinutes"];
+	if (disableAfter > 0)
+	{
+		__weak typeof(self) weakSelf = self;
+		dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(disableAfter * 60.0 * NSEC_PER_SEC)),
+					   dispatch_get_main_queue(), ^{
+			__strong typeof(self) strongSelf = weakSelf;
+			if (!strongSelf || !strongSelf->jiggleMasterSwitch)
+				return;	// gone, or already off
+
+			strongSelf->jiggleMasterSwitch = NO;
+			[[NSUserDefaults standardUserDefaults] setBool:NO forKey:JiggleMasterSwitchDefaultsKey];
+			[strongSelf fixMasterSwitchUI];
+			[strongSelf fixStatusItemIcon];
+		});
+	}
 }
 
 - (void)applicationWillTerminate:(NSNotification *)aNotification
