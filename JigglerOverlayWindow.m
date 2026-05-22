@@ -293,17 +293,3 @@ static NSString *JigglerOverlayVerticalPositionDefaultsKey = @"OverlayVerticalPo
 }
 
 @end
-
-
-
-
-
-
-
-
-
-
-
-
-
-

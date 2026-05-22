@@ -77,7 +77,3 @@ BOOL RunningOnBatteryOnly(void);
 
 // Find out if the screen is locked (Apple Menu > Lock Screen)
 BOOL ScreenIsLocked(void);
-
-
-
-

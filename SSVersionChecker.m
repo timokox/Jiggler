@@ -288,13 +288,3 @@ static NSString *VersionCheckingEnabledDefaultsKey = @"DoVersionCheck";
 }
 
 @end
-
-
-
-
-
-
-
-
-
-

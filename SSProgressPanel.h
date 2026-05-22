@@ -138,7 +138,3 @@
 - (void)setThresholdTime:(double)time;
 
 @end
-
-
-
-
