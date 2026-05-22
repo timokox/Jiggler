@@ -16,7 +16,6 @@
 		987BCA26247F5CAE0069B2FC /* PrefsController.m in Sources */ = {isa = PBXBuildFile; fileRef = 987BCA23247F5CAE0069B2FC /* PrefsController.m */; };
 		987BCA31247F5CD30069B2FC /* CocoaExtra.m in Sources */ = {isa = PBXBuildFile; fileRef = 987BCA27247F5CD20069B2FC /* CocoaExtra.m */; };
 		987BCA32247F5CD30069B2FC /* SSCPU.m in Sources */ = {isa = PBXBuildFile; fileRef = 987BCA29247F5CD20069B2FC /* SSCPU.m */; };
-		987BCA33247F5CD30069B2FC /* SSProgressPanel.m in Sources */ = {isa = PBXBuildFile; fileRef = 987BCA2B247F5CD20069B2FC /* SSProgressPanel.m */; };
 		987BCA34247F5CD30069B2FC /* SSPanels.m in Sources */ = {isa = PBXBuildFile; fileRef = 987BCA2C247F5CD20069B2FC /* SSPanels.m */; };
 		987BCA35247F5CD30069B2FC /* SSVersionChecker.m in Sources */ = {isa = PBXBuildFile; fileRef = 987BCA2F247F5CD30069B2FC /* SSVersionChecker.m */; };
 		987BCA3E247F5D090069B2FC /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 987BCA36247F5D090069B2FC /* Localizable.strings */; };
@@ -49,8 +48,6 @@
 		987BCA27247F5CD20069B2FC /* CocoaExtra.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CocoaExtra.m; sourceTree = "<group>"; };
 		987BCA28247F5CD20069B2FC /* SSPanels.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SSPanels.h; sourceTree = "<group>"; };
 		987BCA29247F5CD20069B2FC /* SSCPU.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SSCPU.m; sourceTree = "<group>"; };
-		987BCA2A247F5CD20069B2FC /* SSProgressPanel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SSProgressPanel.h; sourceTree = "<group>"; };
-		987BCA2B247F5CD20069B2FC /* SSProgressPanel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SSProgressPanel.m; sourceTree = "<group>"; };
 		987BCA2C247F5CD20069B2FC /* SSPanels.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SSPanels.m; sourceTree = "<group>"; };
 		987BCA2D247F5CD30069B2FC /* SSCPU.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SSCPU.h; sourceTree = "<group>"; };
 		987BCA2E247F5CD30069B2FC /* SSVersionChecker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SSVersionChecker.h; sourceTree = "<group>"; };
@@ -139,8 +136,6 @@
 			children = (
 				987BCA28247F5CD20069B2FC /* SSPanels.h */,
 				987BCA2C247F5CD20069B2FC /* SSPanels.m */,
-				987BCA2A247F5CD20069B2FC /* SSProgressPanel.h */,
-				987BCA2B247F5CD20069B2FC /* SSProgressPanel.m */,
 				987BCA2E247F5CD30069B2FC /* SSVersionChecker.h */,
 				987BCA2F247F5CD30069B2FC /* SSVersionChecker.m */,
 				987BCA30247F5CD30069B2FC /* CocoaExtra.h */,
@@ -253,7 +248,6 @@
 				987BCA25247F5CAE0069B2FC /* TimedQuitController.m in Sources */,
 				987BCA34247F5CD30069B2FC /* SSPanels.m in Sources */,
 				987BCA03247F5AD80069B2FC /* AppDelegate.m in Sources */,
-				987BCA33247F5CD30069B2FC /* SSProgressPanel.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

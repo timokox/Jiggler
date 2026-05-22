@@ -8,266 +8,184 @@
 
 #import "SSVersionChecker.h"
 #import "CocoaExtra.h"
-#import "SSProgressPanel.h"
 
 
 static NSString *VersionCheckingEnabledDefaultsKey = @"DoVersionCheck";
+
+// GitHub Releases endpoint for this fork.  Returns a JSON object with at least
+// `tag_name` and `html_url` when a release exists, or HTTP 404 when no releases
+// have been published.  Treat 404 as "up to date" — there is nothing newer.
+static NSString *ReleasesAPIURL = @"https://api.github.com/repos/timokox/Jiggler/releases/latest";
+
+
+// Split a version like "1.10.2" or "v1.10" into an array of integer components,
+// stripping a leading "v" if present.  Non-numeric trailing parts (e.g. "b1")
+// scan as 0 — so 1.10 and 1.10b1 compare equal, which is good enough for
+// "is a newer version out?".  The release notes carry any finer-grained nuance.
+static NSArray<NSNumber *> *VersionComponents(NSString *version)
+{
+	if ([version hasPrefix:@"v"] || [version hasPrefix:@"V"])
+		version = [version substringFromIndex:1];
+
+	NSMutableArray<NSNumber *> *result = [NSMutableArray array];
+	for (NSString *part in [version componentsSeparatedByString:@"."])
+	{
+		NSScanner *scanner = [NSScanner scannerWithString:part];
+		int value = 0;
+		[scanner scanInt:&value];
+		[result addObject:@(value)];
+	}
+	return result;
+}
+
+// NSOrderedAscending  if remote > local (an update is available)
+// NSOrderedSame       if equal
+// NSOrderedDescending if remote < local (local is newer than published — dev builds)
+static NSComparisonResult CompareVersions(NSString *local, NSString *remote)
+{
+	NSArray<NSNumber *> *l = VersionComponents(local);
+	NSArray<NSNumber *> *r = VersionComponents(remote);
+	NSUInteger n = MAX(l.count, r.count);
+
+	for (NSUInteger i = 0; i < n; i++)
+	{
+		int lv = (i < l.count) ? l[i].intValue : 0;
+		int rv = (i < r.count) ? r[i].intValue : 0;
+		if (rv > lv) return NSOrderedAscending;
+		if (rv < lv) return NSOrderedDescending;
+	}
+	return NSOrderedSame;
+}
 
 
 @implementation SSVersionChecker
 
 + (SSVersionChecker *)sharedVersionChecker
 {
-	static SSVersionChecker *sharedChecker = nil;
-	
-	if (!sharedChecker)
-	{
-		sharedChecker = [[SSVersionChecker alloc] init];
-	}
-	
-	return sharedChecker;
-}
-
-- (id)init
-{
-	if (self = [super init])
-	{
-	}
-	
-	return self;
+	static SSVersionChecker *sharedInstance = nil;
+	static dispatch_once_t onceToken;
+	dispatch_once(&onceToken, ^{
+		sharedInstance = [[SSVersionChecker alloc] init];
+	});
+	return sharedInstance;
 }
 
 - (void)askUserAboutAutomaticVersionCheck
 {
 	NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-	NSString *doCheck;
-	NSBundle *mainBundle = [NSBundle mainBundle];
-	NSDictionary *infoDict = [mainBundle infoDictionary];
-	NSString *appName = [infoDict objectForKey:(NSString *)kCFBundleNameKey];
-	NSModalResponse retval;
-	
-	retval = SSRunCriticalAlertPanel(NSLocalizedStringFromTable(@"Version Check", @"VersionCheck", @"Version Check panels title"), NSLocalizedStringFromTable(@"Version Check offer panel text", @"VersionCheck", @"Version Check offer panel text"), NSLocalizedStringFromTable(@"Yes button", @"Base", @"Yes button"), NSLocalizedStringFromTable(@"No button", @"Base", @"No button"), nil, appName, appName);
-	
-	if (retval == NSAlertFirstButtonReturn)
-		doCheck = @"YES";
-	else
-		doCheck = @"NO";
-	
-	[defaults setObject:doCheck forKey:VersionCheckingEnabledDefaultsKey];
-	[defaults synchronize];
+	NSString *appName = [[NSBundle mainBundle] infoDictionary][(NSString *)kCFBundleNameKey];
+
+	NSModalResponse retval = SSRunCriticalAlertPanel(
+		NSLocalizedStringFromTable(@"Version Check", @"VersionCheck", @"Version Check panels title"),
+		NSLocalizedStringFromTable(@"Version Check offer panel text", @"VersionCheck", @"Version Check offer panel text"),
+		NSLocalizedStringFromTable(@"Yes button", @"Base", @"Yes button"),
+		NSLocalizedStringFromTable(@"No button", @"Base", @"No button"),
+		nil, appName, appName);
+
+	[defaults setObject:(retval == NSAlertFirstButtonReturn ? @"YES" : @"NO") forKey:VersionCheckingEnabledDefaultsKey];
 }
 
 - (BOOL)shouldDoAutomaticVersionCheckAskIfNecessary:(BOOL)flag
 {
 	NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
 	NSString *doCheck = [defaults stringForKey:VersionCheckingEnabledDefaultsKey];
-	
+
 	if (!doCheck && flag)
 	{
 		[self askUserAboutAutomaticVersionCheck];
 		doCheck = [defaults stringForKey:VersionCheckingEnabledDefaultsKey];
 	}
-	
-	return ([doCheck isEqual:@"YES"] ? YES : NO);
+
+	return [doCheck isEqualToString:@"YES"];
 }
 
-- (BOOL)webVersion:(NSString *)webVersionString isLaterThanAppVersion:(NSString *)appVersionString
+- (void)checkForNewVersionUserRequested:(BOOL)userRequested
 {
-	NSArray *alphaWebComponents = [webVersionString componentsSeparatedByString:@"a"];
-	NSArray *alphaAppComponents = [appVersionString componentsSeparatedByString:@"a"];
-	BOOL webVersionIsAlpha = (([alphaWebComponents count] > 1) ? YES : NO);
-	BOOL appVersionIsAlpha = (([alphaAppComponents count] > 1) ? YES : NO);
-	NSArray *betaWebComponents = [alphaWebComponents[0] componentsSeparatedByString:@"b"];
-	NSArray *betaAppComponents = [alphaAppComponents[0] componentsSeparatedByString:@"b"];
-	BOOL webVersionIsBeta = (([betaWebComponents count] > 1) ? YES : NO);
-	BOOL appVersionIsBeta = (([betaAppComponents count] > 1) ? YES : NO);
-	NSArray *webComponents = [betaWebComponents[0] componentsSeparatedByString:@"."];
-	NSArray *appComponents = [betaAppComponents[0] componentsSeparatedByString:@"."];
-	BOOL webVersionIsFinal = !(webVersionIsAlpha || webVersionIsBeta);
-	BOOL appVersionIsFinal = !(appVersionIsAlpha || appVersionIsBeta);
-	int i, cWeb, cApp, cMin;
-	
-	cWeb = (int)[webComponents count];
-	cApp = (int)[appComponents count];
-	cMin = MIN(cWeb, cApp);
-	
-	// Compare digits that line up; if one has a higher value, it wins.
-	for (i = 0; i < cMin; ++i)
-	{
-		int webIntValue = [webComponents[i] intValue];
-		int appIntValue = [appComponents[i] intValue];
-		
-		if (webIntValue > appIntValue) return YES;
-		if (webIntValue < appIntValue) return NO;
-	}
-	
-	// If one has an extra component (6.2.1 versus 6.2), that one wins.
-	if (cWeb > cApp) return YES;
-	if (cApp > cWeb) return NO;
-	
-	// Now we look for patterns like 6.2b7 versus 6.2b8, or 6.2a7 versus 6.2b1, or any such things.
-	if (webVersionIsAlpha && (appVersionIsBeta || appVersionIsFinal)) return NO;
-	if (webVersionIsBeta && appVersionIsFinal) return NO;
-	
-	if (appVersionIsAlpha && (webVersionIsBeta || webVersionIsFinal)) return YES;
-	if (appVersionIsBeta && webVersionIsFinal) return YES;
-	
-	if (appVersionIsAlpha && webVersionIsAlpha)
-	{
-		int appAlphaBuildNumber = [alphaAppComponents[1] intValue];
-		int webAlphaBuildNumber = [alphaWebComponents[1] intValue];
-		
-		if (webAlphaBuildNumber > appAlphaBuildNumber) return YES;
-		if (appAlphaBuildNumber > webAlphaBuildNumber) return NO;
-	}
-	
-	if (appVersionIsBeta && webVersionIsBeta)
-	{
-		int appBetaBuildNumber = [betaAppComponents[1] intValue];
-		int webBetaBuildNumber = [betaWebComponents[1] intValue];
-		
-		if (webBetaBuildNumber > appBetaBuildNumber) return YES;
-		if (appBetaBuildNumber > webBetaBuildNumber) return NO;
-	}
-	
-	return NO;
-}
+	NSDictionary *infoDictionary = [[NSBundle mainBundle] infoDictionary];
+	NSString *appVersionString = infoDictionary[@"CFBundleShortVersionString"];	// user-facing marketing version, matches GitHub tags
+	NSString *bundleName = infoDictionary[(NSString *)kCFBundleNameKey];
 
-- (NSString *)versionStringFromFullString:(NSString *)fullString bundleIdentifier:(NSString *)bundleIdentifier
-{
-	NSArray *lines = [fullString componentsSeparatedByString:@"\n"];
-	int i, c;
-	
-	for (i = 0, c = (int)[lines count]; i < c; ++i)
-	{
-		NSString *line = lines[i];
-		
-		if ([line hasPrefix:bundleIdentifier])
-		{
-			NSArray *components = [line componentsSeparatedByString:@" "];
-			
-			if ([components count] == 2)
-				return components[1];
-		}
-	}
-	
-	return nil;
-}
+	NSURL *url = [NSURL URLWithString:ReleasesAPIURL];
+	NSURLSessionConfiguration *config = [NSURLSessionConfiguration ephemeralSessionConfiguration];
+	config.requestCachePolicy = NSURLRequestReloadIgnoringLocalCacheData;
+	NSURLSession *session = [NSURLSession sessionWithConfiguration:config];
 
-- (void)compareVersionWithVersionData:(NSData *)versionData tellUserNegativeResult:(BOOL)flag
-{
-	NSBundle *mainBundle = [NSBundle mainBundle];
-	NSString *bundleIdentifier = [mainBundle bundleIdentifier];
-	NSDictionary *infoDictionary = [mainBundle infoDictionary];
-	NSString *appVersionString = [infoDictionary objectForKey:(NSString *)kCFBundleVersionKey];
-	NSString *bundleName = [infoDictionary objectForKey:(NSString *)kCFBundleNameKey];
-	NSString *versionDataString = (versionData ? [[NSString alloc] initWithData:versionData encoding:NSMacOSRomanStringEncoding] : nil);
-	NSString *webVersionString = [self versionStringFromFullString:versionDataString bundleIdentifier:bundleIdentifier];
+	NSURLSessionDataTask *task = [session dataTaskWithURL:url completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
+		dispatch_async(dispatch_get_main_queue(), ^{
+			NSInteger status = [(NSHTTPURLResponse *)response statusCode];
 
-	if (!webVersionString)
-	{
-		NSString *mailURLString;
-		NSURL *mailURL;
-		
-		mailURLString = @"mailto:versioncheck@sticksoftware.com?subject=Version%20check%20error&body=No%20entry%20found%20for%20";
-		mailURLString = [mailURLString stringByAppendingString:bundleName];
-		mailURLString = [mailURLString stringByAppendingString:@"%20("];
-		mailURLString = [mailURLString stringByAppendingString:bundleIdentifier];
-		mailURLString = [mailURLString stringByAppendingString:@").%0D%0DThis%20email%20was%20automatically%20generated.%0D%0D"];
-		mailURL = [NSURL URLWithString:mailURLString];
-		
-		if (mailURL)
-		{
-			SSRunCriticalAlertPanel(NSLocalizedStringFromTable(@"Version Check", @"VersionCheck", @"Version Check panels title"), NSLocalizedStringFromTable(@"Version Check info unavailable error (sending email)", @"VersionCheck", @"Version Check info unavailable error (sending email)"), NSLocalizedStringFromTable(@"OK button", @"Base", @"OK button"), nil, nil);
-			
-			[[NSWorkspace sharedWorkspace] openURL:mailURL];
-		}
-		else
-		{
-			NSLog(@"mailURL didn't create from string:\n%@", mailURLString);
-			
-			SSRunCriticalAlertPanel(NSLocalizedStringFromTable(@"Version Check", @"VersionCheck", @"Version Check panels title"), NSLocalizedStringFromTable(@"Version Check info unavailable error", @"VersionCheck", @"Version Check info unavailable error"), NSLocalizedStringFromTable(@"OK button", @"Base", @"OK button"), nil, nil);
-		}
-	}
-	else if ([self webVersion:webVersionString isLaterThanAppVersion:appVersionString])
-	{
-		if (SSRunAlertPanel(NSLocalizedStringFromTable(@"Version Check", @"VersionCheck", @"Version Check panels title"), NSLocalizedStringFromTable(@"Version Check new version available", @"VersionCheck", @"Version Check new version available"), NSLocalizedStringFromTable(@"Yes button", @"Base", @"Yes button"), NSLocalizedStringFromTable(@"No button", @"Base", @"No button"), nil, bundleName, webVersionString, appVersionString) == NSAlertFirstButtonReturn)
-		{
-			NSString *productURLString = [NSString stringWithFormat:@"http://www.sticksoftware.com/software/%@.dmg.gz", bundleName];
-			NSURL *productURL = [NSURL URLWithString:productURLString];
-			
-			if (!productURL || ![[NSWorkspace sharedWorkspace] openURL:productURL])
+			// 404 → no releases published yet.  Already on the latest from the user's POV.
+			if (status == 404)
 			{
-				SSRunCriticalAlertPanel(NSLocalizedStringFromTable(@"Version Check", @"VersionCheck", @"Version Check panels title"), NSLocalizedStringFromTable(@"Version Check download failed error", @"VersionCheck", @"Version Check download failed error"), NSLocalizedStringFromTable(@"OK button", @"Base", @"OK button"), nil, nil);
+				if (userRequested)
+				{
+					SSRunInformationalAlertPanel(
+						NSLocalizedStringFromTable(@"Version Check", @"VersionCheck", @"Version Check panels title"),
+						NSLocalizedStringFromTable(@"Version Check up to date", @"VersionCheck", @"Version Check up to date"),
+						NSLocalizedStringFromTable(@"OK button", @"Base", @"OK button"),
+						nil, nil, bundleName, appVersionString);
+				}
+				return;
 			}
-		}
-	}
-	else if (flag)
-	{
-		SSRunInformationalAlertPanel(NSLocalizedStringFromTable(@"Version Check", @"VersionCheck", @"Version Check panels title"), NSLocalizedStringFromTable(@"Version Check up to date", @"VersionCheck", @"Version Check up to date"), NSLocalizedStringFromTable(@"OK button", @"Base", @"OK button"), nil, nil, bundleName, appVersionString);
-	}
-}
 
-- (void)checkForNewVersionUserRequested:(BOOL)flag
-{
-	BOOL doCheck = (flag || [self shouldDoAutomaticVersionCheckAskIfNecessary:YES]);
-	
-	if (doCheck)
-	{
-		// Start the download of the versions file
-		NSString *versionFileURLString = @"http://www.sticksoftware.com/versions";
-		NSURL *versionFileURL = [NSURL URLWithString:versionFileURLString];
-		NSURLSession *session = [NSURLSession sharedSession];
-		__block bool finishedLoading = NO;
-		
-		[[session configuration] setRequestCachePolicy:NSURLRequestReloadIgnoringLocalCacheData];
-		
-		NSURLSessionDataTask *task = [session dataTaskWithURL:versionFileURL completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
-			finishedLoading = YES;
-			
-			dispatch_async(dispatch_get_main_queue(), ^{
-				if (!error && data)
-				{
-					[self compareVersionWithVersionData:data tellUserNegativeResult:flag];
-				}
-				else
-				{
-					if (flag)
-						SSRunCriticalAlertPanel(NSLocalizedStringFromTable(@"Version Check", @"VersionCheck", @"Version Check panels title"), NSLocalizedStringFromTable(@"Version Check network unavailable error (short version)", @"VersionCheck", @"Version Check network unavailable error (short version)"), NSLocalizedStringFromTable(@"OK button", @"Base", @"OK button"), nil, nil);
-					// Commented out; we don't want to show an error when a non-user-requested version check fails, that was a bad policy decision
-					//else
-					//	SSRunCriticalAlertPanel(NSLocalizedStringFromTable(@"Version Check", @"VersionCheck", @"Version Check panels title"), NSLocalizedStringFromTable(@"Version Check network unavailable error (long version)", @"VersionCheck", @"Version Check network unavailable error (long version)"), NSLocalizedStringFromTable(@"OK button", @"Base", @"OK button"), nil, nil);
-				}
-			});
-		}];
-		[task resume];
-		
-		// Run a progress panel while we wait, iff the version check was requested by the user
-		if (flag)
-		{
-			SSProgressPanel *progressPanel;
-			BOOL loadCancelledByUser = NO;
-			
-			progressPanel = [SSProgressPanel progressPanelModalForWindow:nil title:NSLocalizedStringFromTable(@"Version Check", @"VersionCheck", @"Version Check panels title") subtitle:NSLocalizedStringFromTable(@"Checking for a new version...", @"VersionCheck", @"Version Check progress string") determinate:NO];
-			[progressPanel setGiveTimeToRunLoop:YES];
-			[progressPanel setThresholdTime:1.0];
-			[progressPanel startNewTask];
-			
-			while (!finishedLoading && ([progressPanel elapsedTime] < 15.0))
+			if (error || !data || status != 200)
 			{
-				if (![progressPanel giveTime])
+				if (userRequested)
 				{
-					loadCancelledByUser = YES;
-					break;
+					SSRunCriticalAlertPanel(
+						NSLocalizedStringFromTable(@"Version Check", @"VersionCheck", @"Version Check panels title"),
+						NSLocalizedStringFromTable(@"Version Check network unavailable error (short version)", @"VersionCheck", @"Version Check network unavailable error (short version)"),
+						NSLocalizedStringFromTable(@"OK button", @"Base", @"OK button"),
+						nil, nil);
 				}
+				return;
 			}
-			
-			[progressPanel finish];
-			
-			if (loadCancelledByUser)
-				[task cancel];
-		}
-	}
+
+			NSError *jsonError = nil;
+			id parsed = [NSJSONSerialization JSONObjectWithData:data options:0 error:&jsonError];
+			NSDictionary *release = [parsed isKindOfClass:[NSDictionary class]] ? parsed : nil;
+			NSString *remoteTag = release[@"tag_name"];
+			NSString *remoteURL = release[@"html_url"];
+
+			if (![remoteTag isKindOfClass:[NSString class]])
+			{
+				if (userRequested)
+				{
+					SSRunCriticalAlertPanel(
+						NSLocalizedStringFromTable(@"Version Check", @"VersionCheck", @"Version Check panels title"),
+						NSLocalizedStringFromTable(@"Version Check info unavailable error", @"VersionCheck", @"Version Check info unavailable error"),
+						NSLocalizedStringFromTable(@"OK button", @"Base", @"OK button"),
+						nil, nil);
+				}
+				return;
+			}
+
+			// Display form strips the conventional leading "v" from the tag.
+			NSString *remoteVersion = ([remoteTag hasPrefix:@"v"] || [remoteTag hasPrefix:@"V"]) ? [remoteTag substringFromIndex:1] : remoteTag;
+
+			if (CompareVersions(appVersionString, remoteTag) == NSOrderedAscending)
+			{
+				NSModalResponse choice = SSRunAlertPanel(
+					NSLocalizedStringFromTable(@"Version Check", @"VersionCheck", @"Version Check panels title"),
+					NSLocalizedStringFromTable(@"Version Check new version available", @"VersionCheck", @"Version Check new version available"),
+					NSLocalizedStringFromTable(@"Yes button", @"Base", @"Yes button"),
+					NSLocalizedStringFromTable(@"No button", @"Base", @"No button"),
+					nil, bundleName, remoteVersion, appVersionString);
+
+				if (choice == NSAlertFirstButtonReturn && [remoteURL isKindOfClass:[NSString class]])
+					[[NSWorkspace sharedWorkspace] openURL:[NSURL URLWithString:remoteURL]];
+			}
+			else if (userRequested)
+			{
+				SSRunInformationalAlertPanel(
+					NSLocalizedStringFromTable(@"Version Check", @"VersionCheck", @"Version Check panels title"),
+					NSLocalizedStringFromTable(@"Version Check up to date", @"VersionCheck", @"Version Check up to date"),
+					NSLocalizedStringFromTable(@"OK button", @"Base", @"OK button"),
+					nil, nil, bundleName, appVersionString);
+			}
+		});
+	}];
+	[task resume];
 }
 
 @end
