@@ -37,11 +37,6 @@ static NSString *VersionCheckingEnabledDefaultsKey = @"DoVersionCheck";
 	return self;
 }
 
-- (void)dealloc
-{
-	[super dealloc];
-}
-
 - (void)askUserAboutAutomaticVersionCheck
 {
 	NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
@@ -82,12 +77,12 @@ static NSString *VersionCheckingEnabledDefaultsKey = @"DoVersionCheck";
 	NSArray *alphaAppComponents = [appVersionString componentsSeparatedByString:@"a"];
 	BOOL webVersionIsAlpha = (([alphaWebComponents count] > 1) ? YES : NO);
 	BOOL appVersionIsAlpha = (([alphaAppComponents count] > 1) ? YES : NO);
-	NSArray *betaWebComponents = [[alphaWebComponents objectAtIndex:0] componentsSeparatedByString:@"b"];
-	NSArray *betaAppComponents = [[alphaAppComponents objectAtIndex:0] componentsSeparatedByString:@"b"];
+	NSArray *betaWebComponents = [alphaWebComponents[0] componentsSeparatedByString:@"b"];
+	NSArray *betaAppComponents = [alphaAppComponents[0] componentsSeparatedByString:@"b"];
 	BOOL webVersionIsBeta = (([betaWebComponents count] > 1) ? YES : NO);
 	BOOL appVersionIsBeta = (([betaAppComponents count] > 1) ? YES : NO);
-	NSArray *webComponents = [[betaWebComponents objectAtIndex:0] componentsSeparatedByString:@"."];
-	NSArray *appComponents = [[betaAppComponents objectAtIndex:0] componentsSeparatedByString:@"."];
+	NSArray *webComponents = [betaWebComponents[0] componentsSeparatedByString:@"."];
+	NSArray *appComponents = [betaAppComponents[0] componentsSeparatedByString:@"."];
 	BOOL webVersionIsFinal = !(webVersionIsAlpha || webVersionIsBeta);
 	BOOL appVersionIsFinal = !(appVersionIsAlpha || appVersionIsBeta);
 	int i, cWeb, cApp, cMin;
@@ -99,8 +94,8 @@ static NSString *VersionCheckingEnabledDefaultsKey = @"DoVersionCheck";
 	// Compare digits that line up; if one has a higher value, it wins.
 	for (i = 0; i < cMin; ++i)
 	{
-		int webIntValue = [[webComponents objectAtIndex:i] intValue];
-		int appIntValue = [[appComponents objectAtIndex:i] intValue];
+		int webIntValue = [webComponents[i] intValue];
+		int appIntValue = [appComponents[i] intValue];
 		
 		if (webIntValue > appIntValue) return YES;
 		if (webIntValue < appIntValue) return NO;
@@ -119,8 +114,8 @@ static NSString *VersionCheckingEnabledDefaultsKey = @"DoVersionCheck";
 	
 	if (appVersionIsAlpha && webVersionIsAlpha)
 	{
-		int appAlphaBuildNumber = [[alphaAppComponents objectAtIndex:1] intValue];
-		int webAlphaBuildNumber = [[alphaWebComponents objectAtIndex:1] intValue];
+		int appAlphaBuildNumber = [alphaAppComponents[1] intValue];
+		int webAlphaBuildNumber = [alphaWebComponents[1] intValue];
 		
 		if (webAlphaBuildNumber > appAlphaBuildNumber) return YES;
 		if (appAlphaBuildNumber > webAlphaBuildNumber) return NO;
@@ -128,8 +123,8 @@ static NSString *VersionCheckingEnabledDefaultsKey = @"DoVersionCheck";
 	
 	if (appVersionIsBeta && webVersionIsBeta)
 	{
-		int appBetaBuildNumber = [[betaAppComponents objectAtIndex:1] intValue];
-		int webBetaBuildNumber = [[betaWebComponents objectAtIndex:1] intValue];
+		int appBetaBuildNumber = [betaAppComponents[1] intValue];
+		int webBetaBuildNumber = [betaWebComponents[1] intValue];
 		
 		if (webBetaBuildNumber > appBetaBuildNumber) return YES;
 		if (appBetaBuildNumber > webBetaBuildNumber) return NO;
@@ -145,14 +140,14 @@ static NSString *VersionCheckingEnabledDefaultsKey = @"DoVersionCheck";
 	
 	for (i = 0, c = (int)[lines count]; i < c; ++i)
 	{
-		NSString *line = [lines objectAtIndex:i];
+		NSString *line = lines[i];
 		
 		if ([line hasPrefix:bundleIdentifier])
 		{
 			NSArray *components = [line componentsSeparatedByString:@" "];
 			
 			if ([components count] == 2)
-				return [components objectAtIndex:1];
+				return components[1];
 		}
 	}
 	
@@ -166,7 +161,7 @@ static NSString *VersionCheckingEnabledDefaultsKey = @"DoVersionCheck";
 	NSDictionary *infoDictionary = [mainBundle infoDictionary];
 	NSString *appVersionString = [infoDictionary objectForKey:(NSString *)kCFBundleVersionKey];
 	NSString *bundleName = [infoDictionary objectForKey:(NSString *)kCFBundleNameKey];
-	NSString *versionDataString = (versionData ? [[[NSString alloc] initWithData:versionData encoding:NSMacOSRomanStringEncoding] autorelease] : nil);
+	NSString *versionDataString = (versionData ? [[NSString alloc] initWithData:versionData encoding:NSMacOSRomanStringEncoding] : nil);
 	NSString *webVersionString = [self versionStringFromFullString:versionDataString bundleIdentifier:bundleIdentifier];
 	
 #if 0
@@ -270,7 +265,7 @@ static NSString *VersionCheckingEnabledDefaultsKey = @"DoVersionCheck";
 			SSProgressPanel *progressPanel;
 			BOOL loadCancelledByUser = NO;
 			
-			progressPanel = [[SSProgressPanel progressPanelModalForWindow:nil title:SSLocalizedStringFromTable(@"Version Check", @"VersionCheck", @"Version Check panels title") subtitle:SSLocalizedStringFromTable(@"Checking for a new version...", @"VersionCheck", @"Version Check progress string") determinate:NO] retain];
+			progressPanel = [SSProgressPanel progressPanelModalForWindow:nil title:SSLocalizedStringFromTable(@"Version Check", @"VersionCheck", @"Version Check panels title") subtitle:SSLocalizedStringFromTable(@"Checking for a new version...", @"VersionCheck", @"Version Check progress string") determinate:NO];
 			[progressPanel setGiveTimeToRunLoop:YES];
 			[progressPanel setThresholdTime:1.0];
 			[progressPanel startNewTask];
@@ -284,7 +279,7 @@ static NSString *VersionCheckingEnabledDefaultsKey = @"DoVersionCheck";
 				}
 			}
 			
-			[progressPanel finishAndRelease];
+			[progressPanel finish];
 			
 			if (loadCancelledByUser)
 				[task cancel];

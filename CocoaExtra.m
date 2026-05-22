@@ -72,7 +72,7 @@ NSString *SSTestLocalizedStringFromTable(NSString *key, NSString *table)
     {
 		[ts addAttribute:NSLinkAttributeName value:[NSURL URLWithString:url] range:urlRange];
 		[ts addAttribute:NSForegroundColorAttributeName value:[NSColor blueColor] range:urlRange];
-		[ts addAttribute:NSUnderlineStyleAttributeName value:[NSNumber numberWithInt:NSUnderlineStyleSingle] range:urlRange];
+		[ts addAttribute:NSUnderlineStyleAttributeName value:@(NSUnderlineStyleSingle) range:urlRange];
     }
     [ts endEditing];
 }
@@ -93,7 +93,7 @@ NSString *SSTestLocalizedStringFromTable(NSString *key, NSString *table)
     NSString *tfString = [self stringValue];
     NSRange urlRange = [tfString rangeOfString:text options:NSBackwardsSearch];
     int length = (int)[tfString length];
-	NSMutableParagraphStyle *pStyle = [[[NSParagraphStyle defaultParagraphStyle] mutableCopy] autorelease];
+	NSMutableParagraphStyle *pStyle = [[NSParagraphStyle defaultParagraphStyle] mutableCopy];
     NSTextView *tv;
     NSTextStorage *ts;
 	NSRect viewFrame = [self frame];
@@ -118,13 +118,12 @@ NSString *SSTestLocalizedStringFromTable(NSString *key, NSString *table)
     {
 		[ts addAttribute:NSLinkAttributeName value:[NSURL URLWithString:url] range:urlRange];
 		[ts addAttribute:NSForegroundColorAttributeName value:[NSColor blueColor] range:urlRange];
-		[ts addAttribute:NSUnderlineStyleAttributeName value:[NSNumber numberWithInt:NSUnderlineStyleSingle] range:urlRange];
+		[ts addAttribute:NSUnderlineStyleAttributeName value:@(NSUnderlineStyleSingle) range:urlRange];
     }
     [ts endEditing];
 	
 	[tv setFrame:viewFrame];			// set the frame again, to counteract an apparent AppKit bug...
     [[self superview] addSubview:tv];
-    [tv release];
     [self removeFromSuperview];
 }
 
@@ -171,10 +170,7 @@ NSModalResponse SSRunAlertPanel(NSString *title, NSString *msg, NSString *defaul
 	[alert setAlertStyle:NSAlertStyleWarning];
 	
 	NSModalResponse value = [alert runModal];
-	
-	[alert release];
-	[resolvedMessage release];
-	
+
     return value;
 }
 
@@ -199,10 +195,7 @@ NSModalResponse SSRunInformationalAlertPanel(NSString *title, NSString *msg, NSS
 	[alert setAlertStyle:NSAlertStyleInformational];
 	
 	NSModalResponse value = [alert runModal];
-	
-	[alert release];
-	[resolvedMessage release];
-	
+
     return value;
 }
 
@@ -227,10 +220,7 @@ NSModalResponse SSRunCriticalAlertPanel(NSString *title, NSString *msg, NSString
 	[alert setAlertStyle:NSAlertStyleCritical];
 	
 	NSModalResponse value = [alert runModal];
-	
-	[alert release];
-	[resolvedMessage release];
-	
+
     return value;
 }
 
@@ -244,7 +234,7 @@ NSModalResponse SSRunCriticalAlertPanel(NSString *title, NSString *msg, NSString
 	
 	for (i = 0, c = (int)[screens count]; i < c; ++i)
 	{
-		NSScreen *screen = [screens objectAtIndex:i];
+		NSScreen *screen = screens[i];
 		NSRect frame = [screen frame];
 		
 		if ((frame.origin.x == 0) && (frame.origin.y == 0))
@@ -315,7 +305,7 @@ NSModalResponse SSRunCriticalAlertPanel(NSString *title, NSString *msg, NSString
 	[context setImageInterpolation:savedInterpolation];
 	[icon unlockFocus];
 	
-	return [icon autorelease];
+	return icon;
 }
 
 @end
@@ -406,7 +396,7 @@ BOOL ScreenIsLocked(void)
 	if (!sessionDict)
 		return NO;
 	
-	BOOL isLocked = ([[(NSDictionary *)sessionDict objectForKey:@"CGSSessionScreenIsLocked"] intValue] == 1);
+	BOOL isLocked = ([((__bridge NSDictionary *)sessionDict)[@"CGSSessionScreenIsLocked"] intValue] == 1);
 	
 	CFRelease(sessionDict);
 	return isLocked;

@@ -74,7 +74,6 @@
 // The object is left in a state identical to its state after construction,
 // so it may be reused immediately if so desired, or it may be released.
 - (void)finish;
-- (void)finishAndRelease;
 
 // Getting and setting the min and max values and the current value
 - (double)minValue;

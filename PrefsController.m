@@ -36,124 +36,112 @@ static NSString *FrontAppNameComponentDefaultsKey = @"FrontAppNameComponent";
 
 @implementation PrefsController
 
-static PrefsController *sharedPrefsController = nil;
-
 + (PrefsController *)sharedPrefsController
 {
-	if (!sharedPrefsController)
-		[[[PrefsController alloc] init] autorelease];
-	
-	return sharedPrefsController;
+	static PrefsController *sharedInstance = nil;
+	static dispatch_once_t onceToken;
+	dispatch_once(&onceToken, ^{
+		sharedInstance = [[PrefsController alloc] init];
+	});
+	return sharedInstance;
 }
 
 - (id)init
 {
-	if (sharedPrefsController == nil)
+	if (self = [super init])
 	{
-		if (self = [super init])
-		{
-			NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
-			
-			// Set up our default values; should probably be in +initialize, but this gets called right away anyway...
-			[userDefaults registerDefaults:[NSDictionary dictionaryWithObjectsAndKeys:
-                                            [NSNumber numberWithInt:5], JiggleTimeDefaultsKey,						// use the old key as a minimum time value
-                                            [NSNumber numberWithInt:-1], JiggleSecondsDefaultsKey,					// use -1 as a flag value for "no value set for the new key"
-                                            @"YES", ShowIconWhenJigglingDefaultsKey,
-											@"YES", JiggleOnlyWhenIdleDefaultsKey,
-											
-											@"NO", ZenJiggleDefaultsKey,											// the default for the old key
-											[NSNumber numberWithInt:-1], JiggleStyleDefaultsKey,					// use -1 as a flag value for "no value set for the new key"
-                                            [NSNumber numberWithFloat:2], JiggleDistanceDefaultsKey,				// 0 was the old default in 1.7 and earlier, effectively
-                                            
-                                            @"NO", OnlyWithCPUUsageDefaultsKey,
-                                            [NSNumber numberWithInt:20], CPUUsageThresholdDefaultsKey,
-                                            
-                                            @"NO", OnlyWithRemovableWritableDisksDefaultsKey,
-                                            
-                                            @"NO", OnlyWithMusicPlayingDefaultsKey,
-                                            
-                                            @"NO", OnlyWithApplicationsNamedXDefaultsKey,
-                                            [NSNumber numberWithInt:0], OnlyWithIdentityDefaultsKey,
-                                            @"", ApplicationNameComponentDefaultsKey,
-											
-											@"YES", NotWhenScreenLockedDefaultsKey,
-                                            
-                                            @"NO", NotOnBatteryDefaultsKey,
-                                            
-                                            @"NO", NotWithFrontAppsNamedXDefaultsKey,
-                                            @"", FrontAppNameComponentDefaultsKey,
-											
-											[NSNumber numberWithBool:YES], @"NSAppSleepDisabled",	// completely disable App Nap; we want to always be live, that's kind of the point
-                                            
-                                            nil]];
-			
-			// Read our de facto values into our caches
-			jiggleSeconds = (int)[userDefaults integerForKey:JiggleSecondsDefaultsKey];
-			
-			if (jiggleSeconds < 0)
-			{
-				int jiggleTime;		// old defaults key: -1 is 20 seconds, 0 is 40 seconds, positive integers are a number of minutes
-				
-				jiggleTime = (int)[userDefaults integerForKey:JiggleTimeDefaultsKey];
-				
-				if (jiggleTime == -1)
-					jiggleSeconds = 20;
-				else if (jiggleTime == 0)
-					jiggleSeconds = 40;
-				else
-					jiggleSeconds = jiggleTime * 60;
-			}
-			
-			if (jiggleSeconds < 5)
-				jiggleSeconds = 5;
-			if (jiggleSeconds > 60 * 60 * 24)
-				jiggleSeconds = 60 * 60 * 24;
-			
-			showJigglerIconWhenJiggling = [userDefaults boolForKey:ShowIconWhenJigglingDefaultsKey];
-			jiggleOnlyWhenIdle = [userDefaults boolForKey:JiggleOnlyWhenIdleDefaultsKey];
-			
-			jiggleStyle = (int)[userDefaults integerForKey:JiggleStyleDefaultsKey];
-			if (jiggleStyle == -1)
-				jiggleStyle = ([userDefaults boolForKey:ZenJiggleDefaultsKey] ? 1 : 0);
-			if ((jiggleStyle < 0) || (jiggleStyle > 2)) jiggleStyle = 0;
-            
-            jiggleDistance = [userDefaults floatForKey:JiggleDistanceDefaultsKey];
-			if (jiggleDistance < 0.0f)
-				jiggleDistance = 0.0f;
-			if (jiggleDistance > 20.0f)
-				jiggleDistance = 20.0f;
-			
-			onlyWithCPUUsage = [userDefaults boolForKey:OnlyWithCPUUsageDefaultsKey];
-            cpuUsageThreshold = (int)[userDefaults integerForKey:CPUUsageThresholdDefaultsKey];
-            
-			onlyWithRemovableWritableDisks = [userDefaults boolForKey:OnlyWithRemovableWritableDisksDefaultsKey];
-            
-			onlyWithMusicPlaying = [userDefaults boolForKey:OnlyWithMusicPlayingDefaultsKey];
-            
-			onlyWithApplicationsNamedX = [userDefaults boolForKey:OnlyWithApplicationsNamedXDefaultsKey];
-            onlyWithIdentityTag = (int)[userDefaults integerForKey:OnlyWithIdentityDefaultsKey];
-			applicationNameComponent = [[userDefaults stringForKey:ApplicationNameComponentDefaultsKey] retain];
-			[applicationNameComponents release];
-			applicationNameComponents = nil;
-            
-			notWhenScreenLocked = [userDefaults boolForKey:NotWhenScreenLockedDefaultsKey];
-			
-			notOnBattery = [userDefaults boolForKey:NotOnBatteryDefaultsKey];
-            
-			notWithFrontAppsNamedX = [userDefaults boolForKey:NotWithFrontAppsNamedXDefaultsKey];
-			frontAppNameComponent = [[userDefaults stringForKey:FrontAppNameComponentDefaultsKey] retain];
-			[frontAppNameComponents release];
-			frontAppNameComponents = nil;
-		}
+		NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
 		
-		sharedPrefsController = [self retain];
+		// Set up our default values; should probably be in +initialize, but this gets called right away anyway...
+		[userDefaults registerDefaults:@{
+			JiggleTimeDefaultsKey:                  @5,        // old defaults key, kept as minimum time value
+			JiggleSecondsDefaultsKey:               @(-1),     // -1 == "no value set for the new key" (flag)
+			ShowIconWhenJigglingDefaultsKey:        @"YES",
+			JiggleOnlyWhenIdleDefaultsKey:          @"YES",
+
+			ZenJiggleDefaultsKey:                   @"NO",     // default for the old key
+			JiggleStyleDefaultsKey:                 @(-1),     // -1 == "no value set for the new key" (flag)
+			JiggleDistanceDefaultsKey:              @2.0f,     // 0 was the effective default in 1.7 and earlier
+
+			OnlyWithCPUUsageDefaultsKey:            @"NO",
+			CPUUsageThresholdDefaultsKey:           @20,
+
+			OnlyWithRemovableWritableDisksDefaultsKey: @"NO",
+
+			OnlyWithMusicPlayingDefaultsKey:        @"NO",
+
+			OnlyWithApplicationsNamedXDefaultsKey:  @"NO",
+			OnlyWithIdentityDefaultsKey:            @0,
+			ApplicationNameComponentDefaultsKey:    @"",
+
+			NotWhenScreenLockedDefaultsKey:         @"YES",
+
+			NotOnBatteryDefaultsKey:                @"NO",
+
+			NotWithFrontAppsNamedXDefaultsKey:      @"NO",
+			FrontAppNameComponentDefaultsKey:       @"",
+
+			@"NSAppSleepDisabled":                  @YES,      // completely disable App Nap; we want to always be live, that's kind of the point
+		}];
+		
+		// Read our de facto values into our caches
+		jiggleSeconds = (int)[userDefaults integerForKey:JiggleSecondsDefaultsKey];
+
+		if (jiggleSeconds < 0)
+		{
+			int jiggleTime;		// old defaults key: -1 is 20 seconds, 0 is 40 seconds, positive integers are a number of minutes
+
+			jiggleTime = (int)[userDefaults integerForKey:JiggleTimeDefaultsKey];
+
+			if (jiggleTime == -1)
+				jiggleSeconds = 20;
+			else if (jiggleTime == 0)
+				jiggleSeconds = 40;
+			else
+				jiggleSeconds = jiggleTime * 60;
+		}
+
+		if (jiggleSeconds < 5)
+			jiggleSeconds = 5;
+		if (jiggleSeconds > 60 * 60 * 24)
+			jiggleSeconds = 60 * 60 * 24;
+
+		showJigglerIconWhenJiggling = [userDefaults boolForKey:ShowIconWhenJigglingDefaultsKey];
+		jiggleOnlyWhenIdle = [userDefaults boolForKey:JiggleOnlyWhenIdleDefaultsKey];
+
+		jiggleStyle = (int)[userDefaults integerForKey:JiggleStyleDefaultsKey];
+		if (jiggleStyle == -1)
+			jiggleStyle = ([userDefaults boolForKey:ZenJiggleDefaultsKey] ? 1 : 0);
+		if ((jiggleStyle < 0) || (jiggleStyle > 2)) jiggleStyle = 0;
+
+		jiggleDistance = [userDefaults floatForKey:JiggleDistanceDefaultsKey];
+		if (jiggleDistance < 0.0f)
+			jiggleDistance = 0.0f;
+		if (jiggleDistance > 20.0f)
+			jiggleDistance = 20.0f;
+
+		onlyWithCPUUsage = [userDefaults boolForKey:OnlyWithCPUUsageDefaultsKey];
+		cpuUsageThreshold = (int)[userDefaults integerForKey:CPUUsageThresholdDefaultsKey];
+
+		onlyWithRemovableWritableDisks = [userDefaults boolForKey:OnlyWithRemovableWritableDisksDefaultsKey];
+
+		onlyWithMusicPlaying = [userDefaults boolForKey:OnlyWithMusicPlayingDefaultsKey];
+
+		onlyWithApplicationsNamedX = [userDefaults boolForKey:OnlyWithApplicationsNamedXDefaultsKey];
+		onlyWithIdentityTag = (int)[userDefaults integerForKey:OnlyWithIdentityDefaultsKey];
+		applicationNameComponent = [[userDefaults stringForKey:ApplicationNameComponentDefaultsKey] copy];
+		applicationNameComponents = nil;
+
+		notWhenScreenLocked = [userDefaults boolForKey:NotWhenScreenLockedDefaultsKey];
+
+		notOnBattery = [userDefaults boolForKey:NotOnBatteryDefaultsKey];
+
+		notWithFrontAppsNamedX = [userDefaults boolForKey:NotWithFrontAppsNamedXDefaultsKey];
+		frontAppNameComponent = [[userDefaults stringForKey:FrontAppNameComponentDefaultsKey] copy];
+		frontAppNameComponents = nil;
 	}
-	else
-	{
-		[self dealloc];
-	}
-	
-	return sharedPrefsController;
+
+	return self;
 }
 
 - (void)setJiggleTimeTextfieldString
@@ -175,9 +163,7 @@ static PrefsController *sharedPrefsController = nil;
     if (!preferencesWindow)
 	{
 		[[NSBundle mainBundle] loadNibNamed:@"Preferences" owner:self topLevelObjects:NULL];
-		
-		[preferencesWindow retain];		// we own this panel, so we retain it; could make it a retain property instead, whatever
-		
+
 		// We want command-W to close us, but we have no File menu, so we use a transparent button to make it work
 		[invisibleCloseButton setTransparent:YES];
 		
@@ -309,7 +295,7 @@ static PrefsController *sharedPrefsController = nil;
 		
 		for (i = 0, c = (int)[uncorrectedComponents count]; i < c; ++i)
 		{
-			NSString *uncorrectedComponent = [uncorrectedComponents objectAtIndex:i];
+			NSString *uncorrectedComponent = uncorrectedComponents[i];
 			NSString *correctedString = [uncorrectedComponent stringByTrimmingCharactersInSet:trimSet];
 			
 			if ([correctedString length])
@@ -348,7 +334,7 @@ static PrefsController *sharedPrefsController = nil;
 		
 		for (i = 0, c = (int)[uncorrectedComponents count]; i < c; ++i)
 		{
-			NSString *uncorrectedComponent = [uncorrectedComponents objectAtIndex:i];
+			NSString *uncorrectedComponent = uncorrectedComponents[i];
 			NSString *correctedString = [uncorrectedComponent stringByTrimmingCharactersInSet:trimSet];
 			
 			if ([correctedString length])
@@ -539,20 +525,16 @@ static PrefsController *sharedPrefsController = nil;
 	
 	if (object == applicationNameComponentTextfield)
 	{
-		[applicationNameComponent release];
-		applicationNameComponent = [[applicationNameComponentTextfield stringValue] retain];
-		[applicationNameComponents release];
+		applicationNameComponent = [[applicationNameComponentTextfield stringValue] copy];
 		applicationNameComponents = nil;
-		
+
 		[[NSUserDefaults standardUserDefaults] setObject:applicationNameComponent forKey:ApplicationNameComponentDefaultsKey];
 	}
 	if (object == frontAppsNameComponentTextfield)
 	{
-		[frontAppNameComponent release];
-		frontAppNameComponent = [[frontAppsNameComponentTextfield stringValue] retain];
-		[frontAppNameComponents release];
+		frontAppNameComponent = [[frontAppsNameComponentTextfield stringValue] copy];
 		frontAppNameComponents = nil;
-		
+
 		[[NSUserDefaults standardUserDefaults] setObject:frontAppNameComponent forKey:FrontAppNameComponentDefaultsKey];
 	}
 }
@@ -595,14 +577,14 @@ static PrefsController *sharedPrefsController = nil;
 	if (loginItemsListRef)
 	{
 		CFArrayRef snapshotRef = LSSharedFileListCopySnapshot(loginItemsListRef, NULL);
-		NSArray *loginItems = [NSMakeCollectable(snapshotRef) autorelease];
+		NSArray *loginItems = (NSArray *)CFBridgingRelease(snapshotRef);
 		NSURL *bundleURL = [NSURL fileURLWithPath:[[NSBundle mainBundle] bundlePath]];
-		
+
 		for (id item in loginItems)
 		{
-			LSSharedFileListItemRef itemRef = (LSSharedFileListItemRef)item;
+			LSSharedFileListItemRef itemRef = (__bridge LSSharedFileListItemRef)item;
 			CFURLRef itemURLRef = LSSharedFileListItemCopyResolvedURL(itemRef, 0, NULL);
-			NSURL *itemURL = (NSURL *)[(id)itemURLRef autorelease];
+			NSURL *itemURL = (NSURL *)CFBridgingRelease(itemURLRef);
 			
 			if ([itemURL isEqual:bundleURL])
 			{
@@ -631,21 +613,21 @@ static PrefsController *sharedPrefsController = nil;
 		
 		if (launchOnLogin)
 		{
-			NSDictionary *properties = [NSDictionary dictionaryWithObject:[NSNumber numberWithBool:YES] forKey:@"com.apple.loginitem.HideOnLaunch"];
-			LSSharedFileListItemRef itemRef = LSSharedFileListInsertItemURL(loginItemsListRef, kLSSharedFileListItemLast, NULL, NULL, (CFURLRef)bundleURL, (CFDictionaryRef)properties,NULL);
+			NSDictionary *properties = @{@"com.apple.loginitem.HideOnLaunch": @YES};
+			LSSharedFileListItemRef itemRef = LSSharedFileListInsertItemURL(loginItemsListRef, kLSSharedFileListItemLast, NULL, NULL, (__bridge CFURLRef)bundleURL, (__bridge CFDictionaryRef)properties, NULL);
 			if (itemRef)
 				CFRelease(itemRef);
 		}
 		else
 		{
 			CFArrayRef snapshotRef = LSSharedFileListCopySnapshot(loginItemsListRef, NULL);
-			NSArray *loginItems = [(id)snapshotRef autorelease];
-			
+			NSArray *loginItems = (NSArray *)CFBridgingRelease(snapshotRef);
+
 			for (id item in loginItems)
 			{
-				LSSharedFileListItemRef itemRef = (LSSharedFileListItemRef)item;
+				LSSharedFileListItemRef itemRef = (__bridge LSSharedFileListItemRef)item;
 				CFURLRef itemURLRef = LSSharedFileListItemCopyResolvedURL(itemRef, 0, NULL);
-				NSURL *itemURL = (NSURL *)[(id)itemURLRef autorelease];
+				NSURL *itemURL = (NSURL *)CFBridgingRelease(itemURLRef);
 				
 				if ([itemURL isEqual:bundleURL])
 					LSSharedFileListItemRemove(loginItemsListRef, itemRef);

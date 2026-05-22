@@ -20,7 +20,7 @@
 
 + (SSProgressPanel *)progressPanelModalForWindow:(NSWindow *)window title:(NSString *)title subtitle:(NSString *)subtitle determinate:(BOOL)determinate
 {
-	return [[[SSProgressPanel alloc] initModalForWindow:window title:title subtitle:subtitle determinate:determinate] autorelease];
+	return [[SSProgressPanel alloc] initModalForWindow:window title:title subtitle:subtitle determinate:determinate];
 }
 
 - (id)initModalForWindow:(NSWindow *)window title:(NSString *)title subtitle:(NSString *)subtitle determinate:(BOOL)determinate
@@ -28,8 +28,8 @@
 	if (self = [super init])
 	{
 		modalWindow = window;
-		titleString = [title retain];
-		subtitleString = [subtitle retain];
+		titleString = [title copy];
+		subtitleString = [subtitle copy];
 		isDeterminate = determinate;
 		
 		minValue = 0.0;
@@ -67,20 +67,6 @@
 {
 	if (progressWindow)
 		[self finish];
-	
-	[titleString release];
-	titleString = nil;
-	
-	[subtitleString release];
-	subtitleString = nil;
-	
-	[elapsedTimeBase release];
-	elapsedTimeBase = nil;
-	
-	[lastUpdateTime release];
-	lastUpdateTime = nil;
-	
-	[super dealloc];
 }
 
 - (void)start
@@ -98,10 +84,7 @@
 
 - (void)startNewTask
 {
-	[elapsedTimeBase release];
 	elapsedTimeBase = nil;
-	
-	[lastUpdateTime release];
 	lastUpdateTime = nil;
 	
 	if (isDeterminate)
@@ -137,14 +120,7 @@
 	}
 	
 	// Forget our elapsed time
-	[elapsedTimeBase release];
 	elapsedTimeBase = nil;
-}
-
-- (void)finishAndRelease
-{
-	[self finish];
-	[self release];
 }
 
 - (double)minValue
@@ -312,7 +288,6 @@
 	{
 		if (-[lastUpdateTime timeIntervalSinceNow] > 0.05)
 		{
-			[lastUpdateTime release];
 			lastUpdateTime = [[NSDate alloc] init];
 			refreshTimeElapsed = YES;
 		}
@@ -342,7 +317,6 @@
 	{
 		if (-[lastUpdateTime timeIntervalSinceNow] > 0.05)
 		{
-			[lastUpdateTime release];
 			lastUpdateTime = [[NSDate alloc] init];
 			refreshTimeElapsed = YES;
 		}
@@ -383,9 +357,7 @@
 {
 	if (![titleString isEqualToString:title])
 	{
-		[title retain];
-		[titleString release];
-		titleString = title;
+		titleString = [title copy];
 		
 		if (progressTitle)
 			[progressTitle setStringValue:(titleString ? titleString : @"")];
@@ -401,9 +373,7 @@
 {
 	if (![subtitleString isEqualToString:subtitle])
 	{
-		[subtitle retain];
-		[subtitleString release];
-		subtitleString = subtitle;
+		subtitleString = [subtitle copy];
 		
 		if (progressSubtitle)
 			[progressSubtitle setStringValue:(subtitleString ? subtitleString : @"")];
@@ -537,7 +507,7 @@
 	
 	[iconView setImage:[NSImage imageNamed:@"NSApplicationIcon"]];
 	[contentView addSubview:iconView];
-	[iconView release];
+
 	
 	[progressTitle setStringValue:(titleString ? titleString : @"")];
 	[progressTitle setFont:lucida13bold];
@@ -545,7 +515,7 @@
 	[progressTitle setBordered:NO];
 	[progressTitle setDrawsBackground:NO];
 	[contentView addSubview:progressTitle];
-	[progressTitle release];
+
 	
 	[progressSubtitle setStringValue:(subtitleString ? subtitleString : @"")];
 	[progressSubtitle setFont:lucida11];
@@ -553,7 +523,7 @@
 	[progressSubtitle setBordered:NO];
 	[progressSubtitle setDrawsBackground:NO];
 	[contentView addSubview:progressSubtitle];
-	[progressSubtitle release];
+
 	
 	[cancelButton setTitle:buttonString];
 	[cancelButton setFont:lucida13];
@@ -561,7 +531,7 @@
 	[cancelButton setTarget:self];
 	[cancelButton setAction:@selector(performStop:)];
 	[contentView addSubview:cancelButton];
-	[cancelButton release];
+
 
 	[progressIndicator setIndeterminate:!isDeterminate];
 	[progressIndicator setUsesThreadedAnimation:YES];
@@ -574,7 +544,7 @@
 	}
 	
 	[contentView addSubview:progressIndicator];
-	[progressIndicator release];
+
 	
 	progressStopped = NO;
 }
