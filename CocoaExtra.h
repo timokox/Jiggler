@@ -7,20 +7,6 @@
 //
 
 #import <Cocoa/Cocoa.h>
-//#import <QuickTime/Movies.h>
-
-#if 0
-// Short-circuit to NSLocalizedString, passing nil for the comment so we don't inflate our binary
-#define SSLocalizedString(key, comment) NSLocalizedString(key, nil)
-#define SSLocalizedStringFromTable(key, table, comment) NSLocalizedStringFromTable(key, table, nil)
-#else
-// Test and log if a given key is not correctly defined
-#define SSLocalizedString(key, comment) SSTestLocalizedString(key)
-#define SSLocalizedStringFromTable(key, table, comment) SSTestLocalizedStringFromTable(key, table)
-
-NSString *SSTestLocalizedString(NSString *key);
-NSString *SSTestLocalizedStringFromTable(NSString *key, NSString *table);
-#endif
 
 static inline SInt32 StSRandomIntBetween(SInt32 start, SInt32 end) { return (SInt32)((random() % (end - start + 1)) + start); }
 

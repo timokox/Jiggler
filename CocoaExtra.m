@@ -15,42 +15,6 @@
 #import <IOKit/hidsystem/event_status_driver.h>
 
 
-NSString *SSTestLocalizedString(NSString *key)
-{
-	NSBundle *mainBundle = [NSBundle mainBundle];
-	NSString *localizedString = [mainBundle localizedStringForKey:key value:@"*** error" table:nil];
-	
-	if ([localizedString isEqualToString:@"*** error"])
-	{
-		localizedString = [NSString stringWithFormat:@"*%@*", key];
-		NSLog(@"No value found for key \"%@\"", key);
-	}
-	else
-	{
-		NSLog(@"key \"%@\" produced value \"%@\"", key, localizedString);
-	}
-	
-	return localizedString;
-}
-
-NSString *SSTestLocalizedStringFromTable(NSString *key, NSString *table)
-{
-	NSBundle *mainBundle = [NSBundle mainBundle];
-	NSString *localizedString = [mainBundle localizedStringForKey:key value:@"*** error" table:table];
-	
-	if ([localizedString isEqualToString:@"*** error"])
-	{
-		localizedString = [NSString stringWithFormat:@"*%@*", key];
-		NSLog(@"No value found for key \"%@\"", key);
-	}
-	else
-	{
-		NSLog(@"key \"%@\" produced value \"%@\"", key, localizedString);
-	}
-	
-	return localizedString;
-}
-
 @implementation NSTextView (SSCocoaExtra)
 
 // This is the best solution I've found so far to the problem of how to get clickable links into a window using
