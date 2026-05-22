@@ -394,9 +394,7 @@ extern OSErr UpdateSystemActivity(UInt8 activity) __attribute__((weak_import));
 		NSString *processName = [app localizedName];
 		NSApplicationActivationPolicy activationPolicy = [app activationPolicy];
         BOOL isActive = [app isActive];
-        
-        NSLog(@"process name: %@, is dock app == %@, is active == %@", processName, (activationPolicy == NSApplicationActivationPolicyRegular) ? @"YES" : @"NO", isActive ? @"YES" : @"NO");
-        
+
         if (mustBeDockApp && (activationPolicy != NSApplicationActivationPolicyRegular))
             continue;
         
@@ -442,9 +440,8 @@ extern OSErr UpdateSystemActivity(UInt8 activity) __attribute__((weak_import));
 - (BOOL)cpuUsageOverThreshold:(int)cpuUsageThreshold
 {
 	int cpuBusyIndex = [SSCPU busyIndex];
-	
-    NSLog(@"busy index %d", cpuBusyIndex);
-    
+
+
 	if (cpuBusyIndex >= cpuUsageThreshold)
 		return YES;
 	else
@@ -463,9 +460,7 @@ extern OSErr UpdateSystemActivity(UInt8 activity) __attribute__((weak_import));
 		NSRunningApplication *runningApp = runningApps[i];
 		NSString *runningAppLocalizedName = [runningApp localizedName];
 		NSString *runningAppBundleIdentifier = [runningApp bundleIdentifier];
-		
-		NSLog(@"index %d: name %@ bundle id %@", i, runningAppLocalizedName, runningAppBundleIdentifier);
-		
+
 		if ([runningAppLocalizedName isEqualToString:@"Music"] || [runningAppBundleIdentifier isEqualToString:@"com.apple.Music"])
 		{
 			musicIsRunning = YES;
