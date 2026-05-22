@@ -396,7 +396,7 @@ BOOL ScreenIsLocked(void)
 	if (!sessionDict)
 		return NO;
 	
-	BOOL isLocked = ([[(__bridge NSDictionary *)sessionDict objectForKey:@"CGSSessionScreenIsLocked"] intValue] == 1);
+	BOOL isLocked = ([((__bridge NSDictionary *)sessionDict)[@"CGSSessionScreenIsLocked"] intValue] == 1);
 	
 	CFRelease(sessionDict);
 	return isLocked;
