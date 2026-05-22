@@ -133,8 +133,8 @@ extern OSErr UpdateSystemActivity(UInt8 activity) __attribute__((weak_import));
 	// Check that we have the Accessibility access we need; see https://stackoverflow.com/a/53617674/2752221
 	if (@available(macOS 15.0, *))
 	{
-		NSDictionary *opts = [NSDictionary dictionaryWithObjectsAndKeys:(id)kCFBooleanFalse, (id)kAXTrustedCheckOptionPrompt, nil];
-		(void)AXIsProcessTrustedWithOptions((CFDictionaryRef)opts);
+		NSDictionary *opts = @{(__bridge id)kAXTrustedCheckOptionPrompt: (__bridge id)kCFBooleanFalse};
+		(void)AXIsProcessTrustedWithOptions((__bridge CFDictionaryRef)opts);
 	}
 	else if (!AXIsProcessTrusted())
 	{
@@ -271,7 +271,7 @@ extern OSErr UpdateSystemActivity(UInt8 activity) __attribute__((weak_import));
 	// to a safe initial starting location and ignore set commands.
 	for (i = 0, c = (int)[screens count]; i < c; ++i)
 	{
-		NSScreen *screen = [screens objectAtIndex:i];
+		NSScreen *screen = screens[i];
 		NSRect frame = NSInsetRect([screen frame], 3, 3);
 		
 		if (NSPointInRect(point, frame))
@@ -390,7 +390,7 @@ extern OSErr UpdateSystemActivity(UInt8 activity) __attribute__((weak_import));
 	
 	for (i = 0, processCount = (int)[processList count]; i < processCount; ++i)
 	{
-		NSRunningApplication *app = [processList objectAtIndex:i];
+		NSRunningApplication *app = processList[i];
 		NSString *processName = [app localizedName];
 		NSApplicationActivationPolicy activationPolicy = [app activationPolicy];
         BOOL isActive = [app isActive];
@@ -405,7 +405,7 @@ extern OSErr UpdateSystemActivity(UInt8 activity) __attribute__((weak_import));
         
 		for (j = 0, componentCount = (int)[nameComponents count]; j < componentCount; ++j)
 		{
-			NSString *appNameComponent = [nameComponents objectAtIndex:j];
+			NSString *appNameComponent = nameComponents[j];
 			
 			if ([processName rangeOfString:appNameComponent options:NSCaseInsensitiveSearch].location != NSNotFound)
 				return YES;
@@ -423,7 +423,7 @@ extern OSErr UpdateSystemActivity(UInt8 activity) __attribute__((weak_import));
 	
 	for (i = 0, c = (int)[volumeURLs count]; i < c; ++i)
 	{
-		NSURL *url = [volumeURLs objectAtIndex:i];
+		NSURL *url = volumeURLs[i];
 		NSNumber *isRemovableNum = nil;
 		NSNumber *isReadOnlyNum = nil;
 		BOOL gotRemovable = [url getResourceValue:&isRemovableNum forKey:NSURLVolumeIsRemovableKey error:NULL];
@@ -460,7 +460,7 @@ extern OSErr UpdateSystemActivity(UInt8 activity) __attribute__((weak_import));
 	
 	for (i = 0, c = (int)[runningApps count]; i < c; ++i)
 	{
-		NSRunningApplication *runningApp = [runningApps objectAtIndex:i];
+		NSRunningApplication *runningApp = runningApps[i];
 		NSString *runningAppLocalizedName = [runningApp localizedName];
 		NSString *runningAppBundleIdentifier = [runningApp bundleIdentifier];
 		
@@ -816,7 +816,7 @@ extern OSErr UpdateSystemActivity(UInt8 activity) __attribute__((weak_import));
 - (void)musicChanged:(NSNotification *)note
 {
 	NSDictionary *ui = [note userInfo];
-	NSString *playerState = [ui objectForKey:@"Player State"];
+	NSString *playerState = ui[@"Player State"];
 	
 	musicIsPlaying = (playerState && [playerState isEqualToString:@"Playing"]);
 	jiggleConditionsLikelyToHaveChanged = YES;
@@ -852,11 +852,11 @@ extern OSErr UpdateSystemActivity(UInt8 activity) __attribute__((weak_import));
 
 - (IBAction)showAbout:(id)sender
 {
-	NSDictionary *linkDict = [NSDictionary dictionaryWithObjectsAndKeys:
-							  @"http://www.sticksoftware.com/", @"www.sticksoftware.com",
-							  @"http://www.gnu.org/licenses/", @"http://www.gnu.org/licenses/",
-							  @"https://github.com/bhaller/Jiggler", @"https://github.com/bhaller/Jiggler",
-							  nil];
+	NSDictionary *linkDict = @{
+		@"www.sticksoftware.com":                  @"http://www.sticksoftware.com/",
+		@"http://www.gnu.org/licenses/":           @"http://www.gnu.org/licenses/",
+		@"https://github.com/bhaller/Jiggler":     @"https://github.com/bhaller/Jiggler",
+	};
 	
 	[NSWindow runStandardSSAboutPanelWithURLDictionary:linkDict hideOnDeactivate:NO];
 }

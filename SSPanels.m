@@ -73,9 +73,9 @@ NSWindow *ssAboutPanel = nil;
 	NSFont *lucida24 = [NSFont fontWithName:@"LucidaGrande" size:24];
 	NSFont *lucida13 = [NSFont fontWithName:@"LucidaGrande" size:13];
 	NSFont *lucida11 = [NSFont fontWithName:@"LucidaGrande" size:11];
-	NSDictionary *lucida24dict = [NSDictionary dictionaryWithObject:lucida24 forKey:NSFontAttributeName];
-	NSDictionary *lucida13dict = [NSDictionary dictionaryWithObject:lucida13 forKey:NSFontAttributeName];
-	NSDictionary *lucida11dict = [NSDictionary dictionaryWithObject:lucida11 forKey:NSFontAttributeName];
+	NSDictionary *lucida24dict = @{NSFontAttributeName: lucida24};
+	NSDictionary *lucida13dict = @{NSFontAttributeName: lucida13};
+	NSDictionary *lucida11dict = @{NSFontAttributeName: lucida11};
 	NSSize appNameSize = [appName sizeWithAttributes:lucida24dict];
 	NSSize completedVersionSize = [completedVersionString sizeWithAttributes:lucida13dict];
 	NSSize completedAuthorSize = [completedAuthorString sizeWithAttributes:lucida11dict];
@@ -188,7 +188,7 @@ NSWindow *ssAboutPanel = nil;
 	
 	for (i = 0; i < [urlKeys count]; ++i)
 	{
-		NSString *otherUrlKey = [urlKeys objectAtIndex:i];
+		NSString *otherUrlKey = urlKeys[i];
 		NSString *otherUrlString = [urlDict objectForKey:otherUrlKey];
 		
 		[bodyView fixText:otherUrlKey toGoToLink:otherUrlString];

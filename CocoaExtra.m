@@ -72,7 +72,7 @@ NSString *SSTestLocalizedStringFromTable(NSString *key, NSString *table)
     {
 		[ts addAttribute:NSLinkAttributeName value:[NSURL URLWithString:url] range:urlRange];
 		[ts addAttribute:NSForegroundColorAttributeName value:[NSColor blueColor] range:urlRange];
-		[ts addAttribute:NSUnderlineStyleAttributeName value:[NSNumber numberWithInt:NSUnderlineStyleSingle] range:urlRange];
+		[ts addAttribute:NSUnderlineStyleAttributeName value:@(NSUnderlineStyleSingle) range:urlRange];
     }
     [ts endEditing];
 }
@@ -118,7 +118,7 @@ NSString *SSTestLocalizedStringFromTable(NSString *key, NSString *table)
     {
 		[ts addAttribute:NSLinkAttributeName value:[NSURL URLWithString:url] range:urlRange];
 		[ts addAttribute:NSForegroundColorAttributeName value:[NSColor blueColor] range:urlRange];
-		[ts addAttribute:NSUnderlineStyleAttributeName value:[NSNumber numberWithInt:NSUnderlineStyleSingle] range:urlRange];
+		[ts addAttribute:NSUnderlineStyleAttributeName value:@(NSUnderlineStyleSingle) range:urlRange];
     }
     [ts endEditing];
 	
@@ -234,7 +234,7 @@ NSModalResponse SSRunCriticalAlertPanel(NSString *title, NSString *msg, NSString
 	
 	for (i = 0, c = (int)[screens count]; i < c; ++i)
 	{
-		NSScreen *screen = [screens objectAtIndex:i];
+		NSScreen *screen = screens[i];
 		NSRect frame = [screen frame];
 		
 		if ((frame.origin.x == 0) && (frame.origin.y == 0))

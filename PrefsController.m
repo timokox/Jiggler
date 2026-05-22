@@ -53,37 +53,36 @@ static NSString *FrontAppNameComponentDefaultsKey = @"FrontAppNameComponent";
 		NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
 		
 		// Set up our default values; should probably be in +initialize, but this gets called right away anyway...
-		[userDefaults registerDefaults:[NSDictionary dictionaryWithObjectsAndKeys:
-                                            [NSNumber numberWithInt:5], JiggleTimeDefaultsKey,						// use the old key as a minimum time value
-                                            [NSNumber numberWithInt:-1], JiggleSecondsDefaultsKey,					// use -1 as a flag value for "no value set for the new key"
-                                            @"YES", ShowIconWhenJigglingDefaultsKey,
-										@"YES", JiggleOnlyWhenIdleDefaultsKey,
-										
-										@"NO", ZenJiggleDefaultsKey,											// the default for the old key
-										[NSNumber numberWithInt:-1], JiggleStyleDefaultsKey,					// use -1 as a flag value for "no value set for the new key"
-                                            [NSNumber numberWithFloat:2], JiggleDistanceDefaultsKey,				// 0 was the old default in 1.7 and earlier, effectively
-                                            
-                                            @"NO", OnlyWithCPUUsageDefaultsKey,
-                                            [NSNumber numberWithInt:20], CPUUsageThresholdDefaultsKey,
-                                            
-                                            @"NO", OnlyWithRemovableWritableDisksDefaultsKey,
-                                            
-                                            @"NO", OnlyWithMusicPlayingDefaultsKey,
-                                            
-                                            @"NO", OnlyWithApplicationsNamedXDefaultsKey,
-                                            [NSNumber numberWithInt:0], OnlyWithIdentityDefaultsKey,
-                                            @"", ApplicationNameComponentDefaultsKey,
-										
-										@"YES", NotWhenScreenLockedDefaultsKey,
-                                            
-                                            @"NO", NotOnBatteryDefaultsKey,
-                                            
-                                            @"NO", NotWithFrontAppsNamedXDefaultsKey,
-                                            @"", FrontAppNameComponentDefaultsKey,
-										
-										[NSNumber numberWithBool:YES], @"NSAppSleepDisabled",	// completely disable App Nap; we want to always be live, that's kind of the point
-                                            
-                                            nil]];
+		[userDefaults registerDefaults:@{
+			JiggleTimeDefaultsKey:                  @5,        // old defaults key, kept as minimum time value
+			JiggleSecondsDefaultsKey:               @(-1),     // -1 == "no value set for the new key" (flag)
+			ShowIconWhenJigglingDefaultsKey:        @"YES",
+			JiggleOnlyWhenIdleDefaultsKey:          @"YES",
+
+			ZenJiggleDefaultsKey:                   @"NO",     // default for the old key
+			JiggleStyleDefaultsKey:                 @(-1),     // -1 == "no value set for the new key" (flag)
+			JiggleDistanceDefaultsKey:              @2.0f,     // 0 was the effective default in 1.7 and earlier
+
+			OnlyWithCPUUsageDefaultsKey:            @"NO",
+			CPUUsageThresholdDefaultsKey:           @20,
+
+			OnlyWithRemovableWritableDisksDefaultsKey: @"NO",
+
+			OnlyWithMusicPlayingDefaultsKey:        @"NO",
+
+			OnlyWithApplicationsNamedXDefaultsKey:  @"NO",
+			OnlyWithIdentityDefaultsKey:            @0,
+			ApplicationNameComponentDefaultsKey:    @"",
+
+			NotWhenScreenLockedDefaultsKey:         @"YES",
+
+			NotOnBatteryDefaultsKey:                @"NO",
+
+			NotWithFrontAppsNamedXDefaultsKey:      @"NO",
+			FrontAppNameComponentDefaultsKey:       @"",
+
+			@"NSAppSleepDisabled":                  @YES,      // completely disable App Nap; we want to always be live, that's kind of the point
+		}];
 		
 		// Read our de facto values into our caches
 		jiggleSeconds = (int)[userDefaults integerForKey:JiggleSecondsDefaultsKey];
@@ -296,7 +295,7 @@ static NSString *FrontAppNameComponentDefaultsKey = @"FrontAppNameComponent";
 		
 		for (i = 0, c = (int)[uncorrectedComponents count]; i < c; ++i)
 		{
-			NSString *uncorrectedComponent = [uncorrectedComponents objectAtIndex:i];
+			NSString *uncorrectedComponent = uncorrectedComponents[i];
 			NSString *correctedString = [uncorrectedComponent stringByTrimmingCharactersInSet:trimSet];
 			
 			if ([correctedString length])
@@ -335,7 +334,7 @@ static NSString *FrontAppNameComponentDefaultsKey = @"FrontAppNameComponent";
 		
 		for (i = 0, c = (int)[uncorrectedComponents count]; i < c; ++i)
 		{
-			NSString *uncorrectedComponent = [uncorrectedComponents objectAtIndex:i];
+			NSString *uncorrectedComponent = uncorrectedComponents[i];
 			NSString *correctedString = [uncorrectedComponent stringByTrimmingCharactersInSet:trimSet];
 			
 			if ([correctedString length])
@@ -614,7 +613,7 @@ static NSString *FrontAppNameComponentDefaultsKey = @"FrontAppNameComponent";
 		
 		if (launchOnLogin)
 		{
-			NSDictionary *properties = [NSDictionary dictionaryWithObject:[NSNumber numberWithBool:YES] forKey:@"com.apple.loginitem.HideOnLaunch"];
+			NSDictionary *properties = @{@"com.apple.loginitem.HideOnLaunch": @YES};
 			LSSharedFileListItemRef itemRef = LSSharedFileListInsertItemURL(loginItemsListRef, kLSSharedFileListItemLast, NULL, NULL, (__bridge CFURLRef)bundleURL, (__bridge CFDictionaryRef)properties, NULL);
 			if (itemRef)
 				CFRelease(itemRef);

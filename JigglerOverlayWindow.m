@@ -66,7 +66,7 @@ static NSString *JigglerOverlayVerticalPositionDefaultsKey = @"OverlayVerticalPo
 
 - (void)createOverlayWindow
 {
-	NSScreen *mainScreen = [[NSScreen screens] objectAtIndex:0];
+	NSScreen *mainScreen = [NSScreen screens][0];
 	// Prefer the mainScreen accessor on macOS 15+ to ensure proper centering
 	if (@available(macOS 15.0, *))
 	{
@@ -104,7 +104,7 @@ static NSString *JigglerOverlayVerticalPositionDefaultsKey = @"OverlayVerticalPo
 			
 			for (i = 0, c = (int)[screens count]; i < c; ++i)
 			{
-				NSScreen *screen = [screens objectAtIndex:i];
+				NSScreen *screen = screens[i];
 				NSRect frame = [screen frame];
 				
 				if (NSIntersectsRect(frame, defaultBasedRect))

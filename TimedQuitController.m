@@ -68,10 +68,10 @@ static NSString *TimedQuitMinutesDefaultsKey = @"TimedQuitMinutes";
 		NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
 		
 		// Set up our default values
-		[userDefaults registerDefaults:[NSDictionary dictionaryWithObjectsAndKeys:
-			[NSNumber numberWithInt:2], TimedQuitHoursDefaultsKey,
-			[NSNumber numberWithInt:0], TimedQuitMinutesDefaultsKey,
-			nil]];
+		[userDefaults registerDefaults:@{
+			TimedQuitHoursDefaultsKey:   @2,
+			TimedQuitMinutesDefaultsKey: @0,
+		}];
 		
 		[self loadFromDefaults];
 	}
