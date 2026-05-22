@@ -47,7 +47,6 @@ NSModalResponse SSRunCriticalAlertPanel(NSString *title, NSString *msg, NSString
 @interface NSArray (SSRunLoopExtra)
 
 + (NSArray *)allRunLoopModes;		// default, modal panel, and event tracking
-+ (NSArray *)standardRunLoopModes;	// default and modal panel
 
 @end
 

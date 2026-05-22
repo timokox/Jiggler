@@ -8,9 +8,6 @@
 
 #import <AppKit/AppKit.h>
 
-#include <sys/time.h>
-#include <sys/resource.h>
-
 
 // This is an edited-down version of a class from Eyeballs.  It is a bit gratuitous for it to be a class here, obviously...
 

@@ -7,12 +7,6 @@
 //
 
 #import "CocoaExtra.h"
-#import <ExceptionHandling/NSExceptionHandler.h>
-#include <sys/types.h>
-#include <unistd.h>
-#include <signal.h>
-
-#import <IOKit/hidsystem/event_status_driver.h>
 
 
 @implementation NSTextView (SSCocoaExtra)
@@ -282,16 +276,6 @@ NSModalResponse SSRunCriticalAlertPanel(NSString *title, NSString *msg, NSString
 
     if (!modes)
         modes = [[NSArray alloc] initWithObjects:NSDefaultRunLoopMode, NSModalPanelRunLoopMode, NSEventTrackingRunLoopMode, nil];
-
-    return modes;
-}
-
-+ (NSArray *)standardRunLoopModes
-{
-    static NSArray *modes = nil;
-
-    if (!modes)
-        modes = [[NSArray alloc] initWithObjects:NSDefaultRunLoopMode, NSModalPanelRunLoopMode, nil];
 
     return modes;
 }
