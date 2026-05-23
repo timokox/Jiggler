@@ -1,23 +1,29 @@
 //
 //  SSVersionChecker.h
-//  Stick Software subsystem
+//  Jiggler
 //
-//  Created by Ben Haller on Mon May 19 2003.
-//  Copyright (c) 2003 Stick Software. All rights reserved.
+//  Hand-written bridge header for the Swift implementation in
+//  SSVersionChecker.swift.  Normally Xcode auto-generates Jiggler-Swift.h
+//  from @objc declarations, but on Xcode 26.5 / Swift 6.3 the combination
+//  of -parse-as-library + -enable-batch-mode silently emits an empty
+//  header for our @objc class (the .o file does have the
+//  _OBJC_CLASS_$_SSVersionChecker symbol, so this declaration is
+//  sufficient for the Objective-C side to compile and link).
+//
+//  Keep this declaration in sync with the @objc surface in
+//  SSVersionChecker.swift.  If/when Apple ships a fix, this file can be
+//  deleted and AppDelegate.m can import "Jiggler-Swift.h" again.
 //
 
 #import <Cocoa/Cocoa.h>
 
 
 @interface SSVersionChecker : NSObject
-{
-}
 
 + (SSVersionChecker *)sharedVersionChecker;
 
-- (void)askUserAboutAutomaticVersionCheck;							// runs a panel, whether the user has answered before or not
-- (BOOL)shouldDoAutomaticVersionCheckAskIfNecessary:(BOOL)flag;		// runs a panel only if the user has not expressed an opinion before AND flag is true
-
-- (void)checkForNewVersionUserRequested:(BOOL)flag;					// does an immediate, synchronous check (unless a background check has already completed)
+- (void)askUserAboutAutomaticVersionCheck;                              // runs the consent panel
+- (BOOL)shouldDoAutomaticVersionCheckAskIfNecessary:(BOOL)ask;          // runs the panel only if not asked before AND ask is YES
+- (void)checkForNewVersionUserRequested:(BOOL)userRequested;            // hits GitHub Releases asynchronously
 
 @end

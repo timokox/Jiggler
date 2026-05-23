@@ -9,7 +9,7 @@
 #import "AppDelegate.h"
 #import "CocoaExtra.h"
 #import "SSPanels.h"
-#import "SSVersionChecker.h"
+#import "SSVersionChecker.h"	// hand-written bridge header for the Swift SSVersionChecker
 #import "PrefsController.h"
 #import "JigglerOverlayWindow.h"
 #import "TimedQuitController.h"
