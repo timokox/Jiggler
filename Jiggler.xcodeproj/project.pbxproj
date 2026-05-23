@@ -17,7 +17,7 @@
 		987BCA31247F5CD30069B2FC /* CocoaExtra.m in Sources */ = {isa = PBXBuildFile; fileRef = 987BCA27247F5CD20069B2FC /* CocoaExtra.m */; };
 		987BCA32247F5CD30069B2FC /* SSCPU.m in Sources */ = {isa = PBXBuildFile; fileRef = 987BCA29247F5CD20069B2FC /* SSCPU.m */; };
 		987BCA34247F5CD30069B2FC /* SSPanels.m in Sources */ = {isa = PBXBuildFile; fileRef = 987BCA2C247F5CD20069B2FC /* SSPanels.m */; };
-		987BCA35247F5CD30069B2FC /* SSVersionChecker.m in Sources */ = {isa = PBXBuildFile; fileRef = 987BCA2F247F5CD30069B2FC /* SSVersionChecker.m */; };
+		987BCA35247F5CD30069B2FC /* SSVersionChecker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 987BCA2F247F5CD30069B2FC /* SSVersionChecker.swift */; };
 		987BCA3E247F5D090069B2FC /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 987BCA36247F5D090069B2FC /* Localizable.strings */; };
 		987BCA3F247F5D090069B2FC /* TimedQuit.xib in Resources */ = {isa = PBXBuildFile; fileRef = 987BCA38247F5D090069B2FC /* TimedQuit.xib */; };
 		987BCA40247F5D090069B2FC /* Preferences.xib in Resources */ = {isa = PBXBuildFile; fileRef = 987BCA3A247F5D090069B2FC /* Preferences.xib */; };
@@ -51,7 +51,7 @@
 		987BCA2C247F5CD20069B2FC /* SSPanels.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SSPanels.m; sourceTree = "<group>"; };
 		987BCA2D247F5CD30069B2FC /* SSCPU.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SSCPU.h; sourceTree = "<group>"; };
 		987BCA2E247F5CD30069B2FC /* SSVersionChecker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SSVersionChecker.h; sourceTree = "<group>"; };
-		987BCA2F247F5CD30069B2FC /* SSVersionChecker.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SSVersionChecker.m; sourceTree = "<group>"; };
+		987BCA2F247F5CD30069B2FC /* SSVersionChecker.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SSVersionChecker.swift; sourceTree = "<group>"; };
 		987BCA30247F5CD30069B2FC /* CocoaExtra.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CocoaExtra.h; sourceTree = "<group>"; };
 		987BCA37247F5D090069B2FC /* Base */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = Base; path = Base.lproj/Localizable.strings; sourceTree = "<group>"; };
 		987BCA39247F5D090069B2FC /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/TimedQuit.xib; sourceTree = "<group>"; };
@@ -137,7 +137,7 @@
 				987BCA28247F5CD20069B2FC /* SSPanels.h */,
 				987BCA2C247F5CD20069B2FC /* SSPanels.m */,
 				987BCA2E247F5CD30069B2FC /* SSVersionChecker.h */,
-				987BCA2F247F5CD30069B2FC /* SSVersionChecker.m */,
+				987BCA2F247F5CD30069B2FC /* SSVersionChecker.swift */,
 				987BCA30247F5CD30069B2FC /* CocoaExtra.h */,
 				987BCA27247F5CD20069B2FC /* CocoaExtra.m */,
 				987BCA2D247F5CD30069B2FC /* SSCPU.h */,
@@ -239,7 +239,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				987BCA35247F5CD30069B2FC /* SSVersionChecker.m in Sources */,
+				987BCA35247F5CD30069B2FC /* SSVersionChecker.swift in Sources */,
 				987BCA0B247F5AD80069B2FC /* main.m in Sources */,
 				987BCA24247F5CAE0069B2FC /* JigglerOverlayWindow.m in Sources */,
 				987BCA31247F5CD30069B2FC /* CocoaExtra.m in Sources */,
@@ -444,6 +444,11 @@
 				MARKETING_VERSION = 1.10;
 				PRODUCT_BUNDLE_IDENTIFIER = com.stick.app.jiggler;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				ASSETCATALOG_COMPILER_GENERATE_ASSET_SYMBOLS = NO;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_INSTALL_OBJC_HEADER = YES;
+				SWIFT_VERSION = 5.0;
 			};
 			name = Debug;
 		};
@@ -467,6 +472,10 @@
 				MARKETING_VERSION = 1.10;
 				PRODUCT_BUNDLE_IDENTIFIER = com.stick.app.jiggler;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				ASSETCATALOG_COMPILER_GENERATE_ASSET_SYMBOLS = NO;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_INSTALL_OBJC_HEADER = YES;
+				SWIFT_VERSION = 5.0;
 			};
 			name = Release;
 		};
